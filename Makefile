@@ -6,10 +6,6 @@ LTO_FLAGS = -flto=25 -fuse-linker-plugin -fno-fat-lto-objects
 CFLAGS = $(COMMON_FLAGS) $(GRAPHITE_FLAGS) $(LTO_FLAGS)
 CC = gcc -Wall -pthread $(CFLAGS)
 
-clean: lib/libnetwork.a lib/libkademlia.a test
-	rm lib/*
-	rm test
-
 libnetwork:
 	$(CC) -c src/network/client.c -o client.o
 	$(CC) -c src/network/server.c -o server.o
@@ -24,9 +20,13 @@ libkademlia:
 
 test:
 	$(CC) -I ./src/kademlia -c src/main.c -o main.o
-	$(CC) lib/libkademlia.a main.o -o test
+	$(CC) main.o lib/libkademlia.a -luuid -o test
 	rm *.o
 
-all: libnetwork libkademlia test 
+clean:
+	rm lib/*
+	rm test
+
+all: clean libnetwork libkademlia test 
 
 .PHONY: lib
