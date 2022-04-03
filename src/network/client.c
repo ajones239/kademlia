@@ -38,11 +38,9 @@ int connectSock(char *hostStr, int port, char *transportProto)
     if ((host = gethostbyname(hostStr)))
         memcpy(&addr.sin_addr, host->h_addr, host->h_length);
     else {
-        fprintf(stderr, "Error: failed to get host entry\n");
         return -1;
     }
     if ((proto = getprotobyname(transportProto)) == 0) {
-        fprintf(stderr, "Error: failed to get protocol entry\n");
         return -1;
     }
     if (strcmp(transportProto, "udp") == 0)
@@ -50,11 +48,9 @@ int connectSock(char *hostStr, int port, char *transportProto)
     else type = SOCK_STREAM;
     sock = socket(AF_INET, type, proto->p_proto);
     if (sock < 0) {
-        fprintf(stderr, "Error: failed to create socket\n");
         return -1;
     }
     if (connect(sock, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
-        fprintf(stderr, "Error: failed to connect to host\n");
         return -1;
     }
     return sock;

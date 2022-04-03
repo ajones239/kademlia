@@ -36,7 +36,7 @@ int passiveSock(const int port, const char *transportProto, int qlen)
     addr.sin_addr.s_addr = INADDR_ANY; // bind to all interfaces
     addr.sin_port = port;
     if ((proto = getprotobyname(transportProto)) == 0) {
-        fprintf(stderr, "Error: failed to get protocol entry\n");
+        perror("failed to get protocol entry");
         return -1;
     }
     if (strcmp(transportProto, "udp") == 0)
@@ -44,15 +44,12 @@ int passiveSock(const int port, const char *transportProto, int qlen)
     else type = SOCK_STREAM;
     sock = socket(AF_INET, type, proto->p_proto);
     if (sock < 0) {
-        fprintf(stderr, "Error: failed to create socket\n");
         return -1;
     }
     if (bind(sock, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
-        fprintf(stderr, "Error: failed to bind to port %d\n", ntohs((unsigned short)port));
         return -1;
     }
     if (type == SOCK_STREAM && listen(sock, qlen) < 0) {
-        fprintf(stderr, "Error: failed to listen on port %d\n", ntohs((unsigned short)port));
         return -1;
     }
     return sock;
