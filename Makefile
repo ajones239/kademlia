@@ -15,7 +15,9 @@ libnetwork:
 	ar rs lib/libnetwork.a build/client.o build/server.o build/util.o
 
 libkademlia:
-	$(CC) -c src/kademlia/node.c -o build/node.o
+	$(CC) -I ./src/network -c src/kademlia/node.c -o build/node.o
+	$(CC) -c src/kademlia/message.c -o build/message.o
+	$(CC) -c src/kademlia/serializer.c -o build/serializer.o
 	ar rs lib/libkademlia.a build/node.o 
 
 test:
