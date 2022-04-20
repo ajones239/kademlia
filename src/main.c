@@ -1,6 +1,7 @@
+#include "kademlia.h"
+
 #include <stdio.h>
 
-#include "kademlia.h"
 
 int main(int argc, char **argv) {
     kademlia_node_t *self;

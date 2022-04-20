@@ -1,14 +1,14 @@
+#include "kademlia.h"
+
 #include <stdlib.h>
 #include <time.h>
 #include <uuid/uuid.h>
 
-#include "kademlia.h"
-
 #define MAX_PORT 65535
 #define MIN_PORT 1025
 
-kademlia_node_t *kademlia_node_create(char *host, int port) {
-    kademlia_node_t *n = malloc(sizeof(n));
+kademlia_node *kademlia_node_create(char *host, int port) {
+    kademlia_node *n = malloc(sizeof(kademlia_node));
     uuid_generate_random(n->id);
     n->host = host;
     n->port = port;
@@ -16,3 +16,8 @@ kademlia_node_t *kademlia_node_create(char *host, int port) {
     return n;
 }
 
+void kademlia_node_listen(void *n)
+{
+    kademlia_node *self = (kademlia_node *)n;
+    
+}
