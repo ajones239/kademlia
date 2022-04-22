@@ -4,7 +4,7 @@
 #define KADEMLIA_PROTO_TCP 0
 #define KADEMLIA_PROTO_UDP 1
 
-#define KADEMLIA_DEFAULT_MAX_PEERS 32
+#define KADEMLIA_DEFAULT_MAX_PEERS 128
 
 typedef struct kademlia_node_t {
     uuid_t id;    

@@ -11,6 +11,13 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
+/*
+ *  | 0 - 1
+ *  | network order uint16 specifying type
+ *  | 2 - 17
+ *  | UUID of peer
+ *
+ */
 void kademlia_deserialize_message(void *v)
 {
     client_sock_vars *vars = (client_sock_vars *)v;
