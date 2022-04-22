@@ -6,7 +6,7 @@
 
 int main(int argc, char **argv) {
     kademlia_node *self;
-    self = kademlia_node_create("127.0.0.1", 5555);
+    self = kademlia_node_create("127.0.0.1", 5555, KADEMLIA_PROTO_UDP);
     printf("%s\t%d\n", self->host, self->port);
     sleep(10);
     free(self);

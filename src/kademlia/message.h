@@ -1,6 +1,8 @@
 #include <netdb.h>
 #include <stdint.h>
 
+#define KADEMLIA_MAX_MESSAGE_S 1024
+
 #define KADEMLIA_MESSAGE_TYPE_S 2
 #define PING 0
 #define STORE 1

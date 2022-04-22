@@ -4,26 +4,30 @@
 #include "node.h"
 
 #include <errno.h>
+#include <netdb.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/socket.h>
 #include <unistd.h>
 
 void kademlia_deserialize_message(void *v)
 {
     client_sock_vars *vars = (client_sock_vars *)v;
-    int r;
-    uint16_t type;
-    if ((r = read(vars->sock, (void *)&(type), KADEMLIA_MESSAGE_TYPE_S)) == -1) {
-        perror("Error reading data from peer socket");
-        free(vars->client);
-        free(vars);
+    uint16_t type = ntohs(*((uint16_t *)&(vars->data[0])));
+    uuid_t id;
+    if (uuid_parse(&(vars->data[2]), id) == -1) {
+        fprintf(stderr, "Error invalid UUID, aborting message deserialization\n");
         return;
     }
+
     switch (type)
     {
         case PING:
-            kademlia_message_recv_ping(vars->client);
+            sendto(vars->sock, &type, KADEMLIA_MESSAGE_TYPE_S, 0, (struct sockaddr *)vars->client, sizeof(vars->client));
+            if (vars->proto == KADEMLIA_PROTO_TCP)
+                close(vars->sock);
+            printf("got ping\n");
             break;
         case STORE:
             kademlia_message_recv_store(vars->client); // + data
@@ -39,5 +43,6 @@ void kademlia_deserialize_message(void *v)
             break;
     }
     free(vars->client);
+    free(vars->data);
     free(vars);
 }
