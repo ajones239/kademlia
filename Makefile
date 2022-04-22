@@ -18,11 +18,11 @@ libkademlia:
 	$(CC) -I ./src/network -c src/kademlia/node.c -o build/node.o
 	$(CC) -c src/kademlia/message.c -o build/message.o
 	$(CC) -c src/kademlia/serializer.c -o build/serializer.o
-	ar rs lib/libkademlia.a build/node.o 
+	ar rs lib/libkademlia.a build/node.o build/message.o build/serializer.o
 
 test:
 	$(CC) -I ./src/kademlia -c src/main.c -o build/main.o
-	$(CC) build/main.o lib/libkademlia.a -luuid -o test
+	$(CC) build/main.o lib/libkademlia.a lib/libnetwork.a -luuid -o test
 
 clean:
 	rm build/*

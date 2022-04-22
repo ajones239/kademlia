@@ -1,8 +1,9 @@
 #include "message.h"
 
-#include <netdb.h>
+#include <stdio.h>
 
 void kademlia_message_recv_ping(struct sockaddr_in *client) {
+    printf("got ping\n");
 }
 
 void kademlia_message_recv_store(struct sockaddr_in *client) {} // + data
