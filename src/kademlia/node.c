@@ -31,6 +31,8 @@ kademlia_node *kademlia_node_create(char *host, int port, int proto) {
     n->lastSeen = 0;
     time(&(n->lastSeen));
 
+    kademlia_rpc_register();
+
     n->peerCount = 0;
     n->maxPeerCount = KADEMLIA_DEFAULT_MAX_PEERS;
     n->peers = calloc(KADEMLIA_DEFAULT_MAX_PEERS, sizeof(kademlia_node *));

@@ -6,6 +6,8 @@
 
 #define KADEMLIA_DEFAULT_MAX_PEERS 128
 
+#define MAX_ADDR_LEN 62
+
 typedef struct kademlia_node_t {
     uuid_t id;    
 

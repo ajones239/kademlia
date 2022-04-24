@@ -1,31 +1,38 @@
-COMMON_FLAGS = -O3 -march=native -pipe -fomit-frame-pointer -ftree-vectorize
+COMMON_FLAGS = -Wall -O3 -march=native -pipe -fomit-frame-pointer -ftree-vectorize -std=c99
 # graphite
 GRAPHITE_FLAGS = -fgraphite-identity -floop-interchange -ftree-loop-distribution -floop-strip-mine 
 # lto
 LTO_FLAGS = -flto=25 -fuse-linker-plugin -fno-fat-lto-objects
 CFLAGS = $(COMMON_FLAGS) $(GRAPHITE_FLAGS) $(LTO_FLAGS)
-CC = gcc -Wall -pthread $(CFLAGS)
+CC = gcc $(CFLAGS)
 
-all: libnetwork libkademlia test 
+all: setup libnetwork libkademlia test 
+
+setup:
+	mkdir -p build/kademlia/rpc
+	mkdir -p build/network
 
 libnetwork:
-	$(CC) -c src/network/client.c -o build/client.o
-	$(CC) -c src/network/server.c -o build/server.o
-	$(CC) -c src/network/util.c -o build/util.o
-	ar rs lib/libnetwork.a build/client.o build/server.o build/util.o
+	$(CC) -c src/network/client.c -o build/network/client.o
+	$(CC) -c src/network/server.c -o build/network/server.o
+	$(CC) -c src/network/util.c -o build/network/util.o
+	ar rs lib/libnetwork.a build/network/client.o build/network/server.o build/network/util.o
 
 libkademlia:
-	$(CC) -I ./src/network -c src/kademlia/node.c -o build/node.o
-	$(CC) -c src/kademlia/message.c -o build/message.o
-	$(CC) -c src/kademlia/serializer.c -o build/serializer.o
-	ar rs lib/libkademlia.a build/node.o build/message.o build/serializer.o
+	$(CC) -I ./src/network -c src/kademlia/node.c -o build/kademlia/node.o
+	$(CC) -c src/kademlia/message.c -o build/kademlia/message.o
+	$(CC) -c src/kademlia/serializer.c -o build/kademlia/serializer.o
+	$(CC) -I /usr/include/tirpc -c src/kademlia/rpc/kademlia_rpc_clnt.c -o build/kademlia/rpc/kademlia_rpc_clnt.o
+	$(CC) -I /usr/include/tirpc -c src/kademlia/rpc/kademlia_rpc_xdr.c -o build/kademlia/rpc/kademlia_rpc_xdr.o
+	$(CC) -I /usr/include/tirpc -c src/kademlia/rpc/kademlia_rpc_svc.c -o build/kademlia/rpc/kademlia_rpc_svc.o
+	ar rs lib/libkademlia.a build/kademlia/node.o build/kademlia/message.o build/kademlia/serializer.o build/kademlia/rpc/kademlia_rpc_clnt.o build/kademlia/rpc/kademlia_rpc_xdr.o build/kademlia/rpc/kademlia_rpc_svc.o
 
 test:
 	$(CC) -I ./src/kademlia -c src/main.c -o build/main.o
-	$(CC) build/main.o lib/libkademlia.a lib/libnetwork.a -luuid -o test
+	$(CC) build/main.o lib/libkademlia.a lib/libnetwork.a -o test -luuid -pthread
 
 clean:
-	rm build/*
+	rm -rf build
 	rm lib/*
 	rm test
 
