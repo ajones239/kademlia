@@ -11,6 +11,7 @@ all: setup libnetwork libkademlia test
 setup:
 	mkdir -p build/kademlia/rpc
 	mkdir -p build/network
+	mkdir -p lib
 
 libnetwork:
 	$(CC) -c src/network/client.c -o build/network/client.o
@@ -34,6 +35,6 @@ test:
 
 clean:
 	rm -rf build
-	rm lib/*
+	rm -rf lib
 	rm test
 
