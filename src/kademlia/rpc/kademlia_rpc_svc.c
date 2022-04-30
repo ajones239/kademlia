@@ -77,8 +77,6 @@ static void message_prog_1(struct svc_req *rqstp, register SVCXPRT *transp)
 
 void kademlia_svc_run (void *t)
 {
-    kademlia_node *n = (kademlia_node *)t;
-
     register SVCXPRT *transp;
     pmap_unset (MESSAGE_PROG, MESSAGE_VERS);
     if (n->addr.tsp_udp)

@@ -1,8 +1,9 @@
-#include "node.h"
+#include "kademlia.h"
+/* #include "node.h" */
 
-#include "message.h"
-#include "rpc/kademlia_rpc.h"
-#include "serializer.h"
+/* #include "message.h" */
+/* #include "rpc/kademlia_rpc.h" */
+/* #include "serializer.h" */
 
 #include "network.h"
 
@@ -20,7 +21,7 @@
 #define QLEN 32
 
 kademlia_node *kademlia_node_create(char *host, unsigned long proto) {
-    kademlia_node *n = malloc(sizeof(kademlia_node));
+    n = malloc(sizeof(kademlia_node));
 
     uuid_generate_random(n->id);
 
@@ -47,7 +48,7 @@ kademlia_node *kademlia_node_create(char *host, unsigned long proto) {
     n->maxPeerCount = KADEMLIA_DEFAULT_MAX_PEERS;
     n->peers = calloc(KADEMLIA_DEFAULT_MAX_PEERS, sizeof(kademlia_node *));
 
-    kademlia_peer_add(n, n);
+    kademlia_peer_add(n);
 
     pthread_t t;
     pthread_create(&t, NULL, (void *)kademlia_svc_run, (void *)n);
@@ -55,7 +56,7 @@ kademlia_node *kademlia_node_create(char *host, unsigned long proto) {
     return n;
 }
 
-void kademlia_node_destroy(kademlia_node *n) {
+void kademlia_node_destroy() {
     free(n->addr.host);
     free(n->peers);
     free(n);
@@ -113,7 +114,7 @@ void kademlia_node_listen(void *t)
     */
 }
 
-void kademlia_peer_add(kademlia_node *n, kademlia_node *p) {
+void kademlia_peer_add(kademlia_node *p) {
     if (n->peerCount >= n->maxPeerCount) {
         kademlia_node **newPeers;
         n->maxPeerCount *= 2;
@@ -128,7 +129,7 @@ void kademlia_peer_add(kademlia_node *n, kademlia_node *p) {
     kademlia_peer_sort(n);
 }
 
-void kademlia_peer_sort(kademlia_node *n) {
+void kademlia_peer_sort() {
     int j, i = 1;
     kademlia_node *x;
     while (i < n->peerCount)

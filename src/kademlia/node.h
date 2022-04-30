@@ -32,10 +32,10 @@ typedef struct {
 
 kademlia_node *kademlia_node_create(char *host, unsigned long proto);
 
-void kademlia_node_destroy(kademlia_node *n);
+void kademlia_node_destroy();
 
 void kademlia_node_listen(void *t);
 
-void kademlia_peer_add(kademlia_node *n, kademlia_node *p);
+void kademlia_peer_add(kademlia_node *p);
 
-void kademlia_peer_sort(kademlia_node *n);
+void kademlia_peer_sort();

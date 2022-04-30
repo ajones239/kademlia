@@ -1,6 +1,7 @@
-#include "message.h"
+#include "kademlia.h"
+/* #include "message.h" */
 
-#include "rpc/kademlia_rpc.h"
+/* #include "rpc/kademlia_rpc.h" */
 
 #include <stdio.h>
 
