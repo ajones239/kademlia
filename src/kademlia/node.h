@@ -1,19 +1,19 @@
 #include <uuid/uuid.h>
 
-#define KADEMLIA_PROTO_TYPE_S 1
-#define KADEMLIA_PROTO_TCP 0
-#define KADEMLIA_PROTO_UDP 1
-
 #define KADEMLIA_DEFAULT_MAX_PEERS 128
 
 #define MAX_ADDR_LEN 62
 
+typedef struct {
+    char *host;
+    char tsp_tcp;
+    char tsp_udp;
+}kademlia_address;
+
 typedef struct kademlia_node_t {
     uuid_t id;    
 
-    char *host;
-    int port;
-    int proto;
+    kademlia_address addr;
 
     time_t lastSeen;
 
@@ -30,7 +30,7 @@ typedef struct {
     int proto;
 }client_sock_vars;
 
-kademlia_node *kademlia_node_create(char *host, int port, int proto);
+kademlia_node *kademlia_node_create(char *host, unsigned long proto);
 
 void kademlia_node_destroy(kademlia_node *n);
 

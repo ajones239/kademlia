@@ -19,17 +19,18 @@ libnetwork:
 	ar rs lib/libnetwork.a build/network/client.o build/network/server.o build/network/util.o
 
 libkademlia:
-	$(CC) -I ./src/network -c src/kademlia/node.c -o build/kademlia/node.o
-	$(CC) -c src/kademlia/message.c -o build/kademlia/message.o
-	$(CC) -c src/kademlia/serializer.c -o build/kademlia/serializer.o
+	$(CC) -I /usr/include/tirpc -I ./src/network -c src/kademlia/kademlia.c -o build/kademlia/kademlia.o
+	$(CC) -I /usr/include/tirpc -I ./src/network -c src/kademlia/node.c -o build/kademlia/node.o
+	$(CC) -I /usr/include/tirpc -c src/kademlia/message.c -o build/kademlia/message.o
+#	$(CC) -c src/kademlia/serializer.c -o build/kademlia/serializer.o
 	$(CC) -I /usr/include/tirpc -c src/kademlia/rpc/kademlia_rpc_clnt.c -o build/kademlia/rpc/kademlia_rpc_clnt.o
 	$(CC) -I /usr/include/tirpc -c src/kademlia/rpc/kademlia_rpc_xdr.c -o build/kademlia/rpc/kademlia_rpc_xdr.o
-	$(CC) -I /usr/include/tirpc -c src/kademlia/rpc/kademlia_rpc_svc.c -o build/kademlia/rpc/kademlia_rpc_svc.o
-	ar rs lib/libkademlia.a build/kademlia/node.o build/kademlia/message.o build/kademlia/serializer.o build/kademlia/rpc/kademlia_rpc_clnt.o build/kademlia/rpc/kademlia_rpc_xdr.o build/kademlia/rpc/kademlia_rpc_svc.o
+	$(CC) -I /usr/include/tirpc -I ./src/kademlia -c src/kademlia/rpc/kademlia_rpc_svc.c -o build/kademlia/rpc/kademlia_rpc_svc.o
+	ar rs lib/libkademlia.a build/kademlia/kademlia.o build/kademlia/node.o build/kademlia/message.o build/kademlia/rpc/kademlia_rpc_clnt.o build/kademlia/rpc/kademlia_rpc_svc.o build/kademlia/rpc/kademlia_rpc_xdr.o
 
 test:
 	$(CC) -I ./src/kademlia -c src/main.c -o build/main.o
-	$(CC) build/main.o lib/libkademlia.a lib/libnetwork.a -o test -luuid -pthread
+	$(CC) build/main.o lib/libkademlia.a lib/libnetwork.a -o test -luuid -pthread -ltirpc
 
 clean:
 	rm -rf build

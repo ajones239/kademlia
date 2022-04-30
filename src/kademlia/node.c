@@ -1,6 +1,7 @@
 #include "node.h"
 
 #include "message.h"
+#include "rpc/kademlia_rpc.h"
 #include "serializer.h"
 
 #include "network.h"
@@ -18,20 +19,29 @@
 #define MIN_PORT 1025
 #define QLEN 32
 
-kademlia_node *kademlia_node_create(char *host, int port, int proto) {
+kademlia_node *kademlia_node_create(char *host, unsigned long proto) {
     kademlia_node *n = malloc(sizeof(kademlia_node));
 
     uuid_generate_random(n->id);
 
-    n->host = malloc(strlen(host) + 1);
-    strcpy(n->host, host);
-    n->port = port;
-    n->proto = proto;
+    n->addr.host = malloc(strlen(host) + 1);
+    strcpy(n->addr.host, host);
+    switch (proto)
+    {
+        case IPPROTO_TCP:
+            n->addr.tsp_tcp = 1;
+            break;
+        case IPPROTO_UDP:
+            n->addr.tsp_udp = 1;
+            break;
+        default:
+            n->addr.tsp_tcp = 1;           
+            n->addr.tsp_udp = 1;           
+            break;
+    }
 
     n->lastSeen = 0;
     time(&(n->lastSeen));
-
-    kademlia_rpc_register();
 
     n->peerCount = 0;
     n->maxPeerCount = KADEMLIA_DEFAULT_MAX_PEERS;
@@ -40,13 +50,13 @@ kademlia_node *kademlia_node_create(char *host, int port, int proto) {
     kademlia_peer_add(n, n);
 
     pthread_t t;
-    pthread_create(&t, NULL, (void *)kademlia_node_listen, (void *)n);
+    pthread_create(&t, NULL, (void *)kademlia_svc_run, (void *)n);
 
     return n;
 }
 
 void kademlia_node_destroy(kademlia_node *n) {
-    free(n->host);
+    free(n->addr.host);
     free(n->peers);
     free(n);
     return;
@@ -54,6 +64,7 @@ void kademlia_node_destroy(kademlia_node *n) {
 
 void kademlia_node_listen(void *t)
 {
+    /*
     kademlia_node *n = (kademlia_node *)t;
 
     int sock, csock, ssock;
@@ -99,6 +110,7 @@ void kademlia_node_listen(void *t)
         pthread_attr_setdetachstate(&attr, 1);
         pthread_create(&t, &attr, (void *)kademlia_deserialize_message, (void *)vars);
     }
+    */
 }
 
 void kademlia_peer_add(kademlia_node *n, kademlia_node *p) {

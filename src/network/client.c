@@ -36,7 +36,7 @@ int connectSock(char *hostStr, int port, char *transportProto)
     addr.sin_family = AF_INET;
     addr.sin_port = port;
     if ((host = gethostbyname(hostStr)))
-        memcpy(&addr.sin_addr, host->h_addr, host->h_length);
+        memcpy(&addr.sin_addr, host->h_addr_list, host->h_length);
     else {
         return -1;
     }

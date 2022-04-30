@@ -13,7 +13,6 @@
 extern "C" {
 #endif
 
-
 typedef char *kademlia_id_t;
 
 typedef char *host_t;
@@ -84,7 +83,10 @@ typedef struct kademlia_find_value_t kademlia_find_value_t;
 #define MESSAGE_PROG 0x20000001
 #define MESSAGE_VERS 1
 
+
+
 #if defined(__STDC__) || defined(__cplusplus)
+extern void kademlia_svc_run (void *t);
 #define kademlia_ping 1
 extern  int * kademlia_ping_1(kademlia_ping_t *, CLIENT *);
 extern  int * kademlia_ping_1_svc(kademlia_ping_t *, struct svc_req *);
