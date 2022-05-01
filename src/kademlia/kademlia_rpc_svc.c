@@ -9,10 +9,14 @@
 #include <memory.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <uuid/uuid.h>
 
 #ifndef SIG_PF
 #define SIG_PF void(*)(int)
 #endif
+
+const int RES_CDE_SUC = 0;
+const int RES_CDE_FLR = -1;
 
 static void message_prog_1(struct svc_req *rqstp, register SVCXPRT *transp)
 {
@@ -91,7 +95,7 @@ void kademlia_svc_run (void *t)
             exit(1);
         }
     }
-    else if (n->addr.tsp_tcp)
+    if (n->addr.tsp_tcp)
     {
         transp = svctcp_create(RPC_ANYSOCK, 0, 0);
         if (transp == NULL) {
@@ -103,23 +107,30 @@ void kademlia_svc_run (void *t)
             exit(1);
         }
     }
-    svc_run ();
+    svc_run();
 }
-
-int ff;
 
 int *kademlia_ping_1_svc(kademlia_ping_t *pt, struct svc_req *req) {
     if (kademlia_peer_contains(pt->id))
         kademlia_peer_update(pt->id);
-    else {
-        /* kademlia_node *new = malloc(sizeof(kademlia_node)); */
-        /* new-> */
-        /* new-> */
-        /* kademlia_peer_add( */
+    else
+    {
+        kademlia_node *new = malloc(sizeof(kademlia_node));
+        memcpy(new->id, pt->id, sizeof(uuid_t));
+        size_t hsize = strlen(pt->host) + 1;
+        new->addr.host = malloc(hsize);
+        snprintf(new->addr.host, hsize, "%s", pt->host);
+        if (pt->proto == IPPROTO_TCP) {
+            new->addr.tsp_tcp = 1;
+            new->addr.tsp_udp = 0;
+        } else if (pt->proto == IPPROTO_UDP) {
+            new->addr.tsp_udp = 1;
+            new->addr.tsp_tcp = 0;
+        }
+        time(&(new->lastSeen));
+        kademlia_peer_add(new);
     }
-    printf("%s\n", pt->host);
-    ff = 0;
-    return &ff;
+    return &RES_CDE_SUC;
 }
 
 int *kademlia_store_1_svc(kademlia_store_t *st, struct svc_req *req) {

@@ -22,6 +22,7 @@ int main(int argc, char **argv) {
     }
 
     r = kademlia_ping_1(&var, clnt);
+    free(clnt);
     printf("%d\n", *r);
     sleep(10);
     free(self);

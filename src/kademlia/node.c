@@ -42,7 +42,6 @@ kademlia_node *kademlia_node_create(char *host, unsigned long proto) {
             break;
     }
 
-    n->lastSeen = 0;
     time(&(n->lastSeen));
 
     n->peerCount = 0;
@@ -62,57 +61,6 @@ void kademlia_node_destroy() {
     free(n->peers);
     free(n);
     return;
-}
-
-void kademlia_node_listen(void *t)
-{
-    /*
-    kademlia_node *n = (kademlia_node *)t;
-
-    int sock, csock, ssock;
-    if (n->proto == KADEMLIA_PROTO_UDP)
-        ssock = passiveUDPWithPort(n->port);
-    else
-        ssock = passiveTCPWithPort(n->port, QLEN);
-    if (ssock == -1) {
-        perror("Error creating listening socket");
-        return;
-    }
-
-    while (1)
-    {
-        struct sockaddr_in *client = malloc(sizeof(struct sockaddr_in));
-        socklen_t size = sizeof(*client);
-        client_sock_vars *vars = malloc(sizeof(client_sock_vars));
-        vars->n = n;
-        vars->client = client;
-        vars->proto = n->proto;
-
-        char *buf = malloc(KADEMLIA_MAX_MESSAGE_S);
-        memset(buf, 0, KADEMLIA_MAX_MESSAGE_S);
-
-        if (n->proto == KADEMLIA_PROTO_TCP) {
-            if ((csock = accept(ssock, (struct sockaddr *)client, &size)) == -1) {
-                perror("Error accepting connection");
-                continue;
-            }
-            sock = csock;
-        } else 
-            sock = ssock;
-        if (recvfrom(sock, buf, KADEMLIA_MAX_MESSAGE_S, 0, (struct sockaddr *)client, &size) == -1) {
-            perror("Failed reading message");
-            continue;
-        }
-
-        vars->sock = sock;
-        vars->data = buf;
-
-        pthread_t t;
-        pthread_attr_t attr;
-        pthread_attr_setdetachstate(&attr, 1);
-        pthread_create(&t, &attr, (void *)kademlia_deserialize_message, (void *)vars);
-    }
-    */
 }
 
 void kademlia_peer_add(kademlia_node *p) {
@@ -147,5 +95,9 @@ void kademlia_peer_sort() {
 }
 
 int kademlia_peer_contains(uuid_t id) {
+    for (int i = 0; i < n->peerCount; i++) {
+        if (uuid_compare(id, (n->peers[i])->id) == 0)
+            return 1;
+    }
     return 0;
 }

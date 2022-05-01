@@ -69,7 +69,8 @@ typedef struct kademlia_find_value_t kademlia_find_value_t;
 #define MESSAGE_PROG 0x20000001
 #define MESSAGE_VERS 1
 
-
+extern const int RES_CDE_SUC;
+extern const int RES_CDE_FLR;
 
 #if defined(__STDC__) || defined(__cplusplus)
 extern void kademlia_svc_run (void *t);
