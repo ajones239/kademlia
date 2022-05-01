@@ -1,7 +1,5 @@
 #include "node.h"
-#include "message.h"
-#include "serializer.h"
-#include "rpc/kademlia_rpc.h"
+#include "kademlia_rpc.h"
 
 extern kademlia_node *n;
 

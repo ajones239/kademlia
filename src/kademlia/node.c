@@ -5,7 +5,6 @@
 /* #include "rpc/kademlia_rpc.h" */
 /* #include "serializer.h" */
 
-#include "network.h"
 
 #include <netdb.h>
 #include <pthread.h>
@@ -19,6 +18,8 @@
 #define MAX_PORT 65535
 #define MIN_PORT 1025
 #define QLEN 32
+
+kademlia_node *n;
 
 kademlia_node *kademlia_node_create(char *host, unsigned long proto) {
     n = malloc(sizeof(kademlia_node));
@@ -145,3 +146,6 @@ void kademlia_peer_sort() {
     }
 }
 
+int kademlia_peer_contains(uuid_t id) {
+    return 0;
+}

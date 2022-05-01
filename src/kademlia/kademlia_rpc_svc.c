@@ -1,4 +1,4 @@
-#include "kademlia_rpc.h"
+/* #include "kademlia_rpc.h" */
 
 #include "kademlia.h"
 
@@ -106,21 +106,32 @@ void kademlia_svc_run (void *t)
     svc_run ();
 }
 
-int * kademlia_ping_1_svc(kademlia_ping_t *, struct svc_req *) {
+int ff;
+
+int *kademlia_ping_1_svc(kademlia_ping_t *pt, struct svc_req *req) {
+    if (kademlia_peer_contains(pt->id))
+        kademlia_peer_update(pt->id);
+    else {
+        /* kademlia_node *new = malloc(sizeof(kademlia_node)); */
+        /* new-> */
+        /* new-> */
+        /* kademlia_peer_add( */
+    }
+    printf("%s\n", pt->host);
+    ff = 0;
+    return &ff;
+}
+
+int *kademlia_store_1_svc(kademlia_store_t *st, struct svc_req *req) {
     int i = 0;
     return &i;
 }
 
-int * kademlia_store_1_svc(kademlia_store_t *, struct svc_req *) {
-    int i = 0;
-    return &i;
-}
-
-kademlia_find_node_t * kademlia_find_node_1_svc(kademlia_id_t *, struct svc_req *) {
+kademlia_find_node_t *kademlia_find_node_1_svc(kademlia_id_t *it, struct svc_req *req) {
     return NULL;
 }
 
-kademlia_find_value_t * kademlia_find_value_1_svc(kademlia_id_t *, struct svc_req *) {
+kademlia_find_value_t *kademlia_find_value_1_svc(kademlia_id_t *it, struct svc_req *req) {
     return NULL;
 }
 
