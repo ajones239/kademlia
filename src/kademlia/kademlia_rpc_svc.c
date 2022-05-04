@@ -83,7 +83,7 @@ void kademlia_svc_run (void *t)
 {
     register SVCXPRT *transp;
     pmap_unset (MESSAGE_PROG, MESSAGE_VERS);
-    if (n->addr.tsp_udp)
+    if (n->self.tsp_udp)
     {
         transp = svcudp_create(RPC_ANYSOCK);
         if (transp == NULL) {
@@ -95,7 +95,7 @@ void kademlia_svc_run (void *t)
             exit(1);
         }
     }
-    if (n->addr.tsp_tcp)
+    if (n->self.tsp_tcp)
     {
         transp = svctcp_create(RPC_ANYSOCK, 0, 0);
         if (transp == NULL) {
@@ -115,17 +115,17 @@ int *kademlia_ping_1_svc(kademlia_ping_t *pt, struct svc_req *req) {
         kademlia_peer_update(pt->id);
     else
     {
-        kademlia_node *new = malloc(sizeof(kademlia_node));
+        kademlia_peer *new = malloc(sizeof(kademlia_peer));
         memcpy(new->id, pt->id, sizeof(uuid_t));
         size_t hsize = strlen(pt->host) + 1;
-        new->addr.host = malloc(hsize);
-        snprintf(new->addr.host, hsize, "%s", pt->host);
+        new->host = malloc(hsize);
+        snprintf(new->host, hsize, "%s", pt->host);
         if (pt->proto == IPPROTO_TCP) {
-            new->addr.tsp_tcp = 1;
-            new->addr.tsp_udp = 0;
+            new->tsp_tcp = 1;
+            new->tsp_udp = 0;
         } else if (pt->proto == IPPROTO_UDP) {
-            new->addr.tsp_udp = 1;
-            new->addr.tsp_tcp = 0;
+            new->tsp_udp = 1;
+            new->tsp_tcp = 0;
         }
         time(&(new->lastSeen));
         kademlia_peer_add(new);

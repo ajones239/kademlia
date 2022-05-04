@@ -1,25 +1,25 @@
 #include <uuid/uuid.h>
-
-#define KADEMLIA_DEFAULT_MAX_PEERS 128
-
-#define MAX_ADDR_LEN 62
+#include "conf.h"
 
 typedef struct {
+    uuid_t id;    
+    uuid_t distance;
     char *host;
     char tsp_tcp;
     char tsp_udp;
-}kademlia_address;
+    time_t lastSeen;
+}kademlia_peer;
+
+typedef struct {
+    int count;
+    kademlia_peer *peers[K];
+}kademlia_bucket;
 
 typedef struct kademlia_node_t {
-    uuid_t id;    
+    kademlia_peer self;
 
-    kademlia_address addr;
-
-    time_t lastSeen;
-
+    kademlia_bucket kbuckets[M];
     int peerCount;
-    int maxPeerCount;
-    struct kademlia_node_t **peers;
 }kademlia_node;
 
 typedef struct {
@@ -36,6 +36,6 @@ void kademlia_node_destroy();
 
 void kademlia_node_listen(void *t);
 
-void kademlia_peer_add(kademlia_node *p);
+void kademlia_peer_add(kademlia_peer *p);
 
 void kademlia_peer_sort();
