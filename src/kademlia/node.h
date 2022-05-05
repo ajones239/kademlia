@@ -39,3 +39,11 @@ void kademlia_node_listen(void *t);
 void kademlia_peer_add(kademlia_peer *p);
 
 void kademlia_peer_sort();
+
+int kademlia_peer_contains(uuid_t id);
+
+int kademlia_peer_update(uuid_t id);
+
+kademlia_peer *kademlia_peer_next(uuid_t id);
+
+kademlia_peer *kademlia_peer_get(uuid_t id);

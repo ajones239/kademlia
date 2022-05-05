@@ -2,6 +2,9 @@
 #include "kademlia_rpc.h"
 #include "conf.h"
 
+#define UUID_BYTELEN 16
+
 extern kademlia_node *n;
 
 void kademlia_init();
+void kademlia_destroy();

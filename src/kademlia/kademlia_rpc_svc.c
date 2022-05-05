@@ -111,9 +111,7 @@ void kademlia_svc_run (void *t)
 }
 
 int *kademlia_ping_1_svc(kademlia_ping_t *pt, struct svc_req *req) {
-    if (kademlia_peer_contains(pt->id))
-        kademlia_peer_update(pt->id);
-    else
+    if (kademlia_peer_update(pt->id) == -1)
     {
         kademlia_peer *new = malloc(sizeof(kademlia_peer));
         memcpy(new->id, pt->id, sizeof(uuid_t));
@@ -138,8 +136,45 @@ int *kademlia_store_1_svc(kademlia_store_t *st, struct svc_req *req) {
     return &i;
 }
 
-kademlia_find_node_t *kademlia_find_node_1_svc(kademlia_id_t *it, struct svc_req *req) {
-    return NULL;
+void kademlia_find_node_add(kademlia_peer *p)
+{
+    memcpy(find_node->ids[find_node->numNodes].ids_val, p->id, sizeof(uuid_t));
+
+    find_node->hosts[find_node->numNodes].hosts_len = strlen(p->host) + 1;
+    if (find_node->hosts[find_node->numNodes].hosts_val)
+        free(find_node->hosts[find_node->numNodes].hosts_val);
+    find_node->hosts[find_node->numNodes].hosts_val = malloc(find_node->hosts[find_node->numNodes].hosts_len);
+    memcpy(find_node->hosts[find_node->numNodes].hosts_val, p->host, find_node->hosts[find_node->numNodes].hosts_len);
+    
+    find_node->protos.protos_val[find_node->numNodes] = (p->tsp_tcp) ? IPPROTO_TCP : IPPROTO_UDP;
+    find_node->numNodes++;
+}
+
+kademlia_find_node_t *kademlia_find_node_1_svc(kademlia_id_t *id, struct svc_req *req)
+{
+    kademlia_peer_update(*id);
+    kademlia_peer *p;
+    find_node->numNodes = 0;
+    if (n->peerCount < K) {
+        find_node->protos.protos_len = n->peerCount;
+        for (int i = 0; i < M; i++) {
+            for (int j = 0; j < n->kbuckets[i].count; j++) {
+                p = n->kbuckets[i].peers[j];
+                kademlia_find_node_add(p);
+            }
+        }
+    } else {
+        find_node->protos.protos_len = K;
+        if (kademlia_peer_contains(*id)) {
+            p = kademlia_peer_get(*id);
+            kademlia_find_node_add(p); 
+        }
+        while (find_node->numNodes < K) {
+            p = kademlia_peer_next(p->id);
+            kademlia_find_node_add(p);            
+        }
+    }
+    return find_node;
 }
 
 kademlia_find_value_t *kademlia_find_value_1_svc(kademlia_id_t *it, struct svc_req *req) {

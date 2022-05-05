@@ -15,8 +15,6 @@
 #include <unistd.h>
 #include <uuid/uuid.h>
 
-#define UUID_BYTELEN 16
-
 kademlia_node *n;
 
 kademlia_node *kademlia_node_create(char *host, unsigned long proto) {
@@ -95,7 +93,8 @@ void kademlia_peer_add(kademlia_peer *p)
     b->count++;
 }
 
-int kademlia_peer_contains(uuid_t id) {
+int kademlia_peer_contains(uuid_t id)
+{
     for (int i = 0; i < M; i++) {
         for (int j = 0; j < n->kbuckets[i].count; j++) {
             if (uuid_compare(id, n->kbuckets[i].peers[j]->id) == 0)
@@ -107,7 +106,8 @@ int kademlia_peer_contains(uuid_t id) {
     return 0;
 }
 
-void kademlia_peer_update(uuid_t id) {
+int kademlia_peer_update(uuid_t id)
+{
     for (int i = 0; i < M; i++) 
     {
         for (int j = 0; j < n->kbuckets[i].count; j++)
@@ -116,7 +116,7 @@ void kademlia_peer_update(uuid_t id) {
             {
                 time(&(n->kbuckets[i].peers[j]->lastSeen));
                 if (j == n->kbuckets[i].count - 1)
-                    return;
+                    return 0;
                 else {
                     kademlia_peer *p;
                     p = n->kbuckets[i].peers[j];
@@ -124,8 +124,17 @@ void kademlia_peer_update(uuid_t id) {
                         n->kbuckets[i].peers[k] = n->kbuckets[i].peers[k + 1];
                     n->kbuckets[i].peers[n->kbuckets[i].count - 1] = p;
                 }
-                return;
+                return 0;
             }
         }
     }
+    return -1;
+}
+
+kademlia_peer *kademlia_peer_next(uuid_t id) {
+    return NULL;
+}
+
+kademlia_peer *kademlia_peer_get(uuid_t id) {
+    return NULL;
 }

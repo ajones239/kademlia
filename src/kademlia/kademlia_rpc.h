@@ -12,59 +12,54 @@ typedef unsigned char *kademlia_id_t;
 
 typedef char *host_t;
 
-struct kademlia_ping_t {
+typedef struct {
 	kademlia_id_t id;
 	host_t host;
 	unsigned long proto;
-};
-typedef struct kademlia_ping_t kademlia_ping_t;
+}kademlia_ping_t;
 
-struct kademlia_store_t {
+typedef struct {
+    u_int data_len;
+    char *data_val;
+}kademlia_data;
+
+typedef struct {
+    u_int ids_len;
+    kademlia_id_t *ids_val;
+}kademlia_internal_id;
+
+typedef struct {
+    u_int hosts_len;
+    host_t *hosts_val;
+}kademlia_internal_host;
+
+typedef struct {
+    u_int protos_len;
+    unsigned long *protos_val;
+}kademlia_internal_protos;
+
+typedef struct {
 	kademlia_id_t key;
-	struct {
-		u_int data_len;
-		char *data_val;
-	} data;
-};
-typedef struct kademlia_store_t kademlia_store_t;
+    kademlia_data data;
+}kademlia_store_t;
 
-struct kademlia_find_node_t {
-	struct {
-		u_int ids_len;
-		kademlia_id_t *ids_val;
-	} ids;
-	struct {
-		u_int hosts_len;
-		host_t *hosts_val;
-	} hosts;
-	struct {
-		u_int protos_len;
-		unsigned long *protos_val;
-	} protos;
+typedef struct {
+    kademlia_internal_id *ids;
+    kademlia_internal_host *hosts;
+    kademlia_internal_protos protos;
 	int numNodes;
-};
-typedef struct kademlia_find_node_t kademlia_find_node_t;
+}kademlia_find_node_t;
 
-struct kademlia_find_value_t {
-	struct {
-		u_int ids_len;
-		kademlia_id_t *ids_val;
-	} ids;
-	struct {
-		u_int hosts_len;
-		host_t *hosts_val;
-	} hosts;
-	struct {
-		u_int protos_len;
-		unsigned long *protos_val;
-	} protos;
+typedef struct {
+    kademlia_internal_id *ids;
+    kademlia_internal_host *hosts;
+    kademlia_internal_protos protos;
 	int numNodes;
-	struct {
-		u_int data_len;
-		char *data_val;
-	} data;
-};
-typedef struct kademlia_find_value_t kademlia_find_value_t;
+    kademlia_data data;
+} kademlia_find_value_t;
+
+extern kademlia_find_node_t *find_node;
+extern kademlia_find_value_t *find_value;
 
 #define MESSAGE_PROG 0x20000001
 #define MESSAGE_VERS 1

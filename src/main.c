@@ -5,6 +5,8 @@
 #include <unistd.h>
 
 int main(int argc, char **argv) {
+    kademlia_init();
+    
     kademlia_node *self;
     self = kademlia_node_create("127.0.0.1", 0);
     printf("%s\n", self->self.host);
@@ -25,5 +27,7 @@ int main(int argc, char **argv) {
     free(clnt);
     printf("%d\n", *r);
     sleep(10);
-    free(self);
+
+    kademlia_node_destroy();
+    kademlia_destroy();
 }
