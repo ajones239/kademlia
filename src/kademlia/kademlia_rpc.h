@@ -3,6 +3,7 @@
 
 #include <rpc/rpc.h>
 #include <pthread.h>
+#include <uuid/uuid.h>
 
 
 #ifdef __cplusplus
@@ -68,6 +69,9 @@ extern pthread_mutex_t kademlia_rpc_lock;
 
 extern const int RES_CDE_SUC;
 extern const int RES_CDE_FLR;
+
+int kademlia_send_ping(char *rhost);
+int kademlia_send_find_node(uuid_t id, char *rhost);
 
 #if defined(__STDC__) || defined(__cplusplus)
 extern void kademlia_svc_run (void *t);

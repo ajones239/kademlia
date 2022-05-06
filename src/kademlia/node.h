@@ -5,7 +5,6 @@
 
 typedef struct {
     uuid_t id;    
-    uuid_t distance;
     char *host;
     char tsp_tcp;
     char tsp_udp;

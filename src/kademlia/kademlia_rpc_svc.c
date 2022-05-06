@@ -181,7 +181,7 @@ kademlia_find_node_t *kademlia_find_node_1_svc(kademlia_id_t *id, struct svc_req
     }
     if (sem_post(&(n->sem)) == -1) err_exit("sem_post");
     pthread_mutex_lock(&kademlia_rpc_lock);
-    find_node->protos.protos_len = n->peerCount;
+    find_node->protos.protos_len = nn;
     pthread_mutex_unlock(&kademlia_rpc_lock);
     return find_node;
 }
