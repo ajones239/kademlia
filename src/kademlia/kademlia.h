@@ -8,3 +8,5 @@ extern kademlia_node *n;
 
 void kademlia_init();
 void kademlia_destroy();
+
+void err_exit(char *msg);

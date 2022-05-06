@@ -1,3 +1,5 @@
+#include <pthread.h>
+#include <semaphore.h>
 #include <uuid/uuid.h>
 #include "conf.h"
 
@@ -17,9 +19,9 @@ typedef struct {
 
 typedef struct kademlia_node_t {
     kademlia_peer self;
-
     kademlia_bucket kbuckets[M];
     int peerCount;
+    sem_t sem;
 }kademlia_node;
 
 typedef struct {

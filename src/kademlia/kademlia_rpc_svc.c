@@ -17,6 +17,7 @@
 
 const int RES_CDE_SUC = 0;
 const int RES_CDE_FLR = -1;
+pthread_mutex_t kademlia_xdr_lock;
 
 static void message_prog_1(struct svc_req *rqstp, register SVCXPRT *transp)
 {
@@ -138,6 +139,7 @@ int *kademlia_store_1_svc(kademlia_store_t *st, struct svc_req *req) {
 
 void kademlia_find_node_add(kademlia_peer *p)
 {
+    pthread_mutex_lock(&kademlia_rpc_lock);
     memcpy(find_node->ids[find_node->numNodes].ids_val, p->id, sizeof(uuid_t));
 
     find_node->hosts[find_node->numNodes].hosts_len = strlen(p->host) + 1;
@@ -148,15 +150,18 @@ void kademlia_find_node_add(kademlia_peer *p)
     
     find_node->protos.protos_val[find_node->numNodes] = (p->tsp_tcp) ? IPPROTO_TCP : IPPROTO_UDP;
     find_node->numNodes++;
+    pthread_mutex_unlock(&kademlia_rpc_lock);
 }
 
 kademlia_find_node_t *kademlia_find_node_1_svc(kademlia_id_t *id, struct svc_req *req)
 {
+    int nn;
     kademlia_peer_update(*id);
     kademlia_peer *p;
     find_node->numNodes = 0;
+    if (sem_wait(&(n->sem)) == -1) err_exit("sem_wait");
     if (n->peerCount < K) {
-        find_node->protos.protos_len = n->peerCount;
+        nn = n->peerCount;
         for (int i = 0; i < M; i++) {
             for (int j = 0; j < n->kbuckets[i].count; j++) {
                 p = n->kbuckets[i].peers[j];
@@ -164,7 +169,7 @@ kademlia_find_node_t *kademlia_find_node_1_svc(kademlia_id_t *id, struct svc_req
             }
         }
     } else {
-        find_node->protos.protos_len = K;
+        nn = K;
         if (kademlia_peer_contains(*id)) {
             p = kademlia_peer_get(*id);
             kademlia_find_node_add(p); 
@@ -174,6 +179,10 @@ kademlia_find_node_t *kademlia_find_node_1_svc(kademlia_id_t *id, struct svc_req
             kademlia_find_node_add(p);            
         }
     }
+    if (sem_post(&(n->sem)) == -1) err_exit("sem_post");
+    pthread_mutex_lock(&kademlia_rpc_lock);
+    find_node->protos.protos_len = n->peerCount;
+    pthread_mutex_unlock(&kademlia_rpc_lock);
     return find_node;
 }
 

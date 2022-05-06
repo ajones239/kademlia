@@ -2,9 +2,12 @@
 
 kademlia_find_node_t *find_node;
 kademlia_find_value_t *find_value;
+pthread_mutex_t kademlia_rpc_lock;
 
 void kademlia_init()
 {
+    pthread_mutex_init(&kademlia_rpc_lock, NULL);
+
     find_node = malloc(sizeof(kademlia_find_node_t));
     find_node->ids = malloc(sizeof(kademlia_internal_id) * K);
     find_node->hosts = malloc(sizeof(kademlia_internal_host) * K);
@@ -52,3 +55,8 @@ void kademlia_destroy()
     free(find_node->ids);
     free(find_node);
 } 
+
+void err_exit(char *msg) {
+    perror(msg);
+    exit(1);
+}

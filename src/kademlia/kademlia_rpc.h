@@ -2,6 +2,7 @@
 #define _KADEMLIA_RPC_H_RPCGEN
 
 #include <rpc/rpc.h>
+#include <pthread.h>
 
 
 #ifdef __cplusplus
@@ -60,6 +61,7 @@ typedef struct {
 
 extern kademlia_find_node_t *find_node;
 extern kademlia_find_value_t *find_value;
+extern pthread_mutex_t kademlia_rpc_lock;
 
 #define MESSAGE_PROG 0x20000001
 #define MESSAGE_VERS 1

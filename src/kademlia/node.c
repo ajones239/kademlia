@@ -7,7 +7,6 @@
 
 
 #include <netdb.h>
-#include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -19,6 +18,11 @@ kademlia_node *n;
 
 kademlia_node *kademlia_node_create(char *host, unsigned long proto) {
     n = malloc(sizeof(kademlia_node));
+
+    if (sem_init(&(n->sem), 0, 0) == -1) err_exit("Error initializaing semaphore");
+    if (sem_post(&(n->sem)) == -1) err_exit("sem_post");
+    if (sem_post(&(n->sem)) == -1) err_exit("sem_post");
+
     uuid_generate_random(n->self.id);
 
     n->self.host = malloc(strlen(host) + 1);
@@ -89,19 +93,30 @@ void kademlia_peer_add(kademlia_peer *p)
             index = i;
     }
     kademlia_bucket *b = &(n->kbuckets[index]);
-    b->peers[b->count] = p;
-    b->count++;
+    if (sem_wait(&(n->sem)) == -1) err_exit("sem_wait");
+    if (b->count < K) {
+        if (sem_wait(&(n->sem)) == -1) err_exit("sem_wait");
+        b->peers[b->count] = p;
+        b->count++;
+        n->peerCount++;
+        if (sem_post(&(n->sem)) == -1) err_exit("sem_post");
+    }
+    if (sem_post(&(n->sem)) == -1) err_exit("sem_post");
 }
 
 int kademlia_peer_contains(uuid_t id)
 {
     for (int i = 0; i < M; i++) {
+        if (sem_wait(&(n->sem)) == -1) err_exit("sem_wait");
         for (int j = 0; j < n->kbuckets[i].count; j++) {
-            if (uuid_compare(id, n->kbuckets[i].peers[j]->id) == 0)
+            if (uuid_compare(id, n->kbuckets[i].peers[j]->id) == 0) {
+                if (sem_post(&(n->sem)) == -1) err_exit("sem_post");
                 return 1;
+            }
             else
                 continue;
         }
+        if (sem_post(&(n->sem)) == -1) err_exit("sem_post");
     }
     return 0;
 }
@@ -110,29 +125,36 @@ int kademlia_peer_update(uuid_t id)
 {
     for (int i = 0; i < M; i++) 
     {
+        if (sem_wait(&(n->sem)) == -1) err_exit("sem_wait");
         for (int j = 0; j < n->kbuckets[i].count; j++)
         {
             if (uuid_compare(id, (n->kbuckets[i].peers[j])->id) == 0)
             {
+                if (sem_wait(&(n->sem)) == -1) err_exit("sem_wait");
                 time(&(n->kbuckets[i].peers[j]->lastSeen));
-                if (j == n->kbuckets[i].count - 1)
+                if (j == n->kbuckets[i].count - 1) {
+                    if (sem_post(&(n->sem)) == -1) err_exit("sem_post");
+                    if (sem_post(&(n->sem)) == -1) err_exit("sem_post");
                     return 0;
-                else {
-                    kademlia_peer *p;
-                    p = n->kbuckets[i].peers[j];
-                    for (int k = j; k < n->kbuckets[i].count - 1; k++)
-                        n->kbuckets[i].peers[k] = n->kbuckets[i].peers[k + 1];
-                    n->kbuckets[i].peers[n->kbuckets[i].count - 1] = p;
                 }
+                kademlia_peer *p;
+                p = n->kbuckets[i].peers[j];
+                for (int k = j; k < n->kbuckets[i].count - 1; k++)
+                    n->kbuckets[i].peers[k] = n->kbuckets[i].peers[k + 1];
+                n->kbuckets[i].peers[n->kbuckets[i].count - 1] = p;
+                if (sem_post(&(n->sem)) == -1) err_exit("sem_post");
+                if (sem_post(&(n->sem)) == -1) err_exit("sem_post");
                 return 0;
             }
         }
+        if (sem_post(&(n->sem)) == -1) err_exit("sem_post");
     }
     return -1;
 }
 
 kademlia_peer *kademlia_peer_next(uuid_t id) {
     int bindex, pindex;
+    kademlia_peer *p;
     for (int i = 1; i < M; i++) {
         uuid_t t = {0};
         kademlia_uuid_setbit(t, i);
@@ -142,14 +164,15 @@ kademlia_peer *kademlia_peer_next(uuid_t id) {
         } else if (i == M - 1)
             bindex = i;
     }
+    if (sem_wait(&(n->sem)) == -1) err_exit("sem_wait");
     kademlia_bucket *b = &(n->kbuckets[bindex]);
     for (int i = 0; i < b->count; i++) {
         if (uuid_compare(id, b->peers[i]->id) == 0)
             pindex = i;
     }
-    if (pindex != b->count - 1)
-        return b->peers[pindex + 1];
-    else
+    if (pindex != b->count - 1) {
+        p = b->peers[pindex + 1];
+    } else
     {
         while (1)
         {
@@ -159,20 +182,30 @@ kademlia_peer *kademlia_peer_next(uuid_t id) {
                 bindex++;
             if (n->kbuckets[bindex].count == 0)
                 continue;
-            else
-                return n->kbuckets[bindex].peers[0];
+            else {
+                p = n->kbuckets[bindex].peers[0];
+                break;
+            }
         }
     }
+    if (sem_post(&(n->sem)) == -1) err_exit("sem_post");
+    return p;
 }
 
-kademlia_peer *kademlia_peer_get(uuid_t id) {
-    for (int i = 0; i < M; i++) {
+kademlia_peer *kademlia_peer_get(uuid_t id)
+{
+    kademlia_peer *p;
+    for (int i = 0; i < M; i++)
+    {
+        if (sem_wait(&(n->sem)) == -1) err_exit("sem_wait");
         for (int j = 0; j < n->kbuckets[i].count; j++) {
-            if (uuid_compare(id, n->kbuckets[i].peers[j]->id) == 0)
-                return n->kbuckets[i].peers[j];
-            else
-                continue;
+            if (uuid_compare(id, n->kbuckets[i].peers[j]->id) == 0) {
+                p = n->kbuckets[i].peers[j];
+                if (sem_post(&(n->sem)) == -1) err_exit("sem_post");
+                return p;
+            } else continue;
         }
+        if (sem_post(&(n->sem)) == -1) err_exit("sem_post");
     }
     return NULL;
 }
