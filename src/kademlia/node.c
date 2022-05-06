@@ -132,9 +132,47 @@ int kademlia_peer_update(uuid_t id)
 }
 
 kademlia_peer *kademlia_peer_next(uuid_t id) {
-    return NULL;
+    int bindex, pindex;
+    for (int i = 1; i < M; i++) {
+        uuid_t t = {0};
+        kademlia_uuid_setbit(t, i);
+        if (uuid_compare(id, t) <= 0) {
+            bindex = i - 1;
+            break;
+        } else if (i == M - 1)
+            bindex = i;
+    }
+    kademlia_bucket *b = &(n->kbuckets[bindex]);
+    for (int i = 0; i < b->count; i++) {
+        if (uuid_compare(id, b->peers[i]->id) == 0)
+            pindex = i;
+    }
+    if (pindex != b->count - 1)
+        return b->peers[pindex + 1];
+    else
+    {
+        while (1)
+        {
+            if (bindex == M - 1)
+                bindex = 0;
+            else
+                bindex++;
+            if (n->kbuckets[bindex].count == 0)
+                continue;
+            else
+                return n->kbuckets[bindex].peers[0];
+        }
+    }
 }
 
 kademlia_peer *kademlia_peer_get(uuid_t id) {
+    for (int i = 0; i < M; i++) {
+        for (int j = 0; j < n->kbuckets[i].count; j++) {
+            if (uuid_compare(id, n->kbuckets[i].peers[j]->id) == 0)
+                return n->kbuckets[i].peers[j];
+            else
+                continue;
+        }
+    }
     return NULL;
 }
