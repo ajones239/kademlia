@@ -67,8 +67,8 @@ extern pthread_mutex_t kademlia_rpc_lock;
 #define MESSAGE_PROG 0x20000001
 #define MESSAGE_VERS 1
 
-extern const int RES_CDE_SUC;
-extern const int RES_CDE_FLR;
+extern int RES_CDE_SUC;
+extern int RES_CDE_FLR;
 
 int kademlia_send_ping(char *rhost);
 int kademlia_send_find_node(uuid_t id, char *rhost);

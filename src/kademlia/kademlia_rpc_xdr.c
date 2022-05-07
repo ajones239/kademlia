@@ -2,7 +2,7 @@
 
 bool_t xdr_kademlia_id_t (XDR *xdrs, kademlia_id_t *objp) {
     register int32_t *buf;
-    if (!xdr_string (xdrs, objp, ~0))
+    if (!xdr_string (xdrs, (char **)objp, ~0))
         return FALSE;
     return TRUE;
 }

@@ -14,16 +14,16 @@ setup:
 	mkdir -p lib
 
 libkademlia:
-	$(CC) -I /usr/include/tirpc -c src/kademlia/kademlia.c -o build/kademlia/kademlia.o
-	$(CC) -I /usr/include/tirpc -c src/kademlia/node.c -o build/kademlia/node.o
-	$(CC) -I /usr/include/tirpc -c src/kademlia/kademlia_rpc_clnt.c -o build/kademlia/kademlia_rpc_clnt.o
-	$(CC) -I /usr/include/tirpc -c src/kademlia/kademlia_rpc_xdr.c -o build/kademlia/kademlia_rpc_xdr.o
-	$(CC) -I /usr/include/tirpc -c src/kademlia/kademlia_rpc_svc.c -o build/kademlia/kademlia_rpc_svc.o
+	$(CC) -I /usr/include/rpc -c src/kademlia/kademlia.c -o build/kademlia/kademlia.o
+	$(CC) -I /usr/include/rpc -c src/kademlia/node.c -o build/kademlia/node.o
+	$(CC) -I /usr/include/rpc -c src/kademlia/kademlia_rpc_clnt.c -o build/kademlia/kademlia_rpc_clnt.o
+	$(CC) -I /usr/include/rpc -c src/kademlia/kademlia_rpc_xdr.c -o build/kademlia/kademlia_rpc_xdr.o
+	$(CC) -I /usr/include/rpc -c src/kademlia/kademlia_rpc_svc.c -o build/kademlia/kademlia_rpc_svc.o
 	ar rs lib/libkademlia.a build/kademlia/kademlia.o build/kademlia/node.o build/kademlia/kademlia_rpc_clnt.o build/kademlia/kademlia_rpc_svc.o build/kademlia/kademlia_rpc_xdr.o
 
 test:
-	$(CC) -I /usr/include/tirpc -I ./src/kademlia -c src/peer1.c -o build/peer1.o
-	$(CC) -I /usr/include/tirpc -I ./src/kademlia -c src/peer2.c -o build/peer2.o
+	$(CC) -I /usr/include/rpc -I ./src/kademlia -c src/peer1.c -o build/peer1.o
+	$(CC) -I /usr/include/rpc -I ./src/kademlia -c src/peer2.c -o build/peer2.o
 	$(CC) build/peer1.o lib/libkademlia.a -o peer1 -luuid -pthread -ltirpc
 	$(CC) build/peer2.o lib/libkademlia.a -o peer2 -luuid -pthread -ltirpc
 

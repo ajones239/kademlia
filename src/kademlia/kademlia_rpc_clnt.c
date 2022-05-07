@@ -63,8 +63,8 @@ int *kademlia_store_1(kademlia_store_t *argp, CLIENT *clnt)
 
 int kademlia_send_find_node(uuid_t id, char *rhost)
 {
-    uuid_t idcpy;
-    uuid_copy(idcpy, id);
+    unsigned char *idcpy = malloc(sizeof(uuid_t));
+    memcpy(idcpy, id, sizeof(uuid_t));
     
     CLIENT *clnt;
     char *tspStr;
@@ -83,19 +83,23 @@ int kademlia_send_find_node(uuid_t id, char *rhost)
     }
     printf("4\n");
 
-    kademlia_find_node_t *t = kademlia_find_node_1((kademlia_id_t *)idcpy, clnt);
+    kademlia_find_node_t *t = kademlia_find_node_1(&idcpy, clnt);
     printf("5\n");
+    printf("%d\n", t->numNodes);
     for (int i = 0; i < t->numNodes; i++) {
+        printf("6\n");
         kademlia_peer *p = malloc(sizeof(kademlia_peer));
         memcpy(p->id, t->ids[i].ids_val, sizeof(uuid_t));
+        printf("7\n");
         p->host = malloc(t->hosts[i].hosts_len);
-        strcpy(p->host, t->hosts[i].hosts_val);
+        strcpy(p->host, *(t->hosts[i].hosts_val));
         p->tsp_tcp = (t->protos.protos_val[i] == IPPROTO_TCP) ? 1 : 0;
         p->tsp_udp = (t->protos.protos_val[i] == IPPROTO_UDP) ? 1 : 0;
         time(&(p->lastSeen));
         kademlia_peer_add(p);
     }
     free(clnt);
+    return 0;
 }
 
 kademlia_find_node_t *kademlia_find_node_1(kademlia_id_t *argp, CLIENT *clnt)

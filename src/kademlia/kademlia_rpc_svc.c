@@ -15,8 +15,8 @@
 #define SIG_PF void(*)(int)
 #endif
 
-const int RES_CDE_SUC = 0;
-const int RES_CDE_FLR = -1;
+int RES_CDE_SUC = 0;
+int RES_CDE_FLR = -1;
 pthread_mutex_t kademlia_xdr_lock;
 
 static void message_prog_1(struct svc_req *rqstp, register SVCXPRT *transp)
