@@ -19,9 +19,7 @@ kademlia_node *n;
 kademlia_node *kademlia_node_create(char *host, unsigned long proto) {
     n = malloc(sizeof(kademlia_node));
 
-    if (sem_init(&(n->sem), 0, 2) == -1) err_exit("Error initializaing semaphore");
-    /* if (sem_post(&(n->sem)) == -1) err_exit("sem_post"); */
-    /* if (sem_post(&(n->sem)) == -1) err_exit("sem_post"); */
+    if (sem_init(&(n->sem), 0, 2) == -1) err_exit("error initializaing semaphore");
 
     uuid_generate_random(n->self.id);
 
@@ -80,6 +78,7 @@ void kademlia_distance(uuid_t n1, uuid_t n2, uuid_t ret) {
 
 void kademlia_peer_add(kademlia_peer *p)
 {
+    if (kademlia_peer_contains(p->id)) return;
     uuid_t distance;
     kademlia_distance(p->id, n->self.id, distance);
     int index;
@@ -211,8 +210,14 @@ kademlia_peer *kademlia_peer_get(uuid_t id)
 }
 
 int kademlia_network_bootstrap(char *rhost) {
-    if (kademlia_send_ping(rhost) == -1)
-        err_exit("Failed pinging remote host");
-    if (kademlia_send_find_node(n->self.id, rhost) == -1)
-        err_exit("Failed getting peers from remote host");
+    printf("1\n");
+    if (kademlia_send_find_node(n->self.id, rhost) == -1) {
+        fprintf(stderr, "failed getting peers from remote host");
+        return -1;
+    }
+    if (kademlia_send_ping(rhost) == -1) {
+        fprintf(stderr, "failed pinging remote host");
+        return -1;
+    }
+    return 0;
 }

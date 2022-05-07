@@ -48,3 +48,5 @@ int kademlia_peer_update(uuid_t id);
 kademlia_peer *kademlia_peer_next(uuid_t id);
 
 kademlia_peer *kademlia_peer_get(uuid_t id);
+
+int kademlia_network_bootstrap(char *rhost);
