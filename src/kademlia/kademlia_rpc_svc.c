@@ -155,6 +155,7 @@ void kademlia_find_node_add(kademlia_peer *p)
 
 kademlia_find_node_t *kademlia_find_node_1_svc(kademlia_id_t *id, struct svc_req *req)
 {
+    printf("here\n");
     int nn;
     kademlia_peer_update(*id);
     kademlia_peer *p;

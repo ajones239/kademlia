@@ -8,9 +8,9 @@ int main(int argc, char **argv) {
     kademlia_init();
     
     kademlia_node *self;
-    self = kademlia_node_create("10.0.1.2", 0);
+    self = kademlia_node_create("172.18.0.3", 0);
     printf("%s\n", self->self.host);
-    if (kademlia_network_bootstrap("10.0.1.1") != 0) 
+    if (kademlia_network_bootstrap("172.18.0.2") != 0) 
         err_exit("error bootstrapping network");
 
     sleep(10);
