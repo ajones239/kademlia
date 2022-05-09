@@ -11,7 +11,6 @@ extern "C" {
 
 
 typedef unsigned char *kademlia_id_t;
-
 typedef char *host_t;
 
 typedef struct {

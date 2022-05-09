@@ -1,5 +1,5 @@
 #include "kademlia.h"
-#include <memory.h> /* for memset */
+#include <memory.h>
 #include <semaphore.h>
 
 /* Default timeout can be changed using clnt_control() */
@@ -36,31 +36,27 @@ int kademlia_send_ping(char *rhost)
     return *r;
 }
 
-int *
-kademlia_ping_1(kademlia_ping_t *argp, CLIENT *clnt)
+int *kademlia_ping_1(kademlia_ping_t *argp, CLIENT *clnt)
 {
 	static int clnt_res;
-
 	memset((char *)&clnt_res, 0, sizeof(clnt_res));
 	if (clnt_call (clnt, kademlia_ping,
-		(xdrproc_t) xdr_kademlia_ping_t, (caddr_t) argp,
-		(xdrproc_t) xdr_int, (caddr_t) &clnt_res,
-		TIMEOUT) != RPC_SUCCESS) {
+            (xdrproc_t) xdr_kademlia_ping_t, (caddr_t) argp,
+            (xdrproc_t) xdr_int, (caddr_t) &clnt_res,
+            TIMEOUT) != RPC_SUCCESS) {
 		return (NULL);
 	}
 	return (&clnt_res);
 }
 
-int *
-kademlia_store_1(kademlia_store_t *argp, CLIENT *clnt)
+int *kademlia_store_1(kademlia_store_t *argp, CLIENT *clnt)
 {
 	static int clnt_res;
-
 	memset((char *)&clnt_res, 0, sizeof(clnt_res));
 	if (clnt_call (clnt, kademlia_store,
-		(xdrproc_t) xdr_kademlia_store_t, (caddr_t) argp,
-		(xdrproc_t) xdr_int, (caddr_t) &clnt_res,
-		TIMEOUT) != RPC_SUCCESS) {
+            (xdrproc_t) xdr_kademlia_store_t, (caddr_t) argp,
+            (xdrproc_t) xdr_int, (caddr_t) &clnt_res,
+            TIMEOUT) != RPC_SUCCESS) {
 		return (NULL);
 	}
 	return (&clnt_res);
@@ -73,29 +69,23 @@ int kademlia_send_find_node(uuid_t id, char *rhost)
     
     CLIENT *clnt;
     char *tspStr;
-    printf("2\n");
     if (sem_wait(&(n->sem)) == -1) err_exit("sem_wait");
     if (n->self.tsp_tcp)
         tspStr = "tcp";
     else
         tspStr = "udp";
     if (sem_post(&(n->sem)) == -1) err_exit("sem_post");
-    printf("3\n");
     clnt = clnt_create(rhost, MESSAGE_PROG, MESSAGE_VERS, tspStr);
     if (clnt == NULL) {
         fprintf(stderr, "error creating rpc client\n");
         return -1;
     }
-    printf("4\n");
 
     kademlia_find_node_t *t = kademlia_find_node_1(&idcpy, clnt);
-    printf("5\n");
-    printf("%d\n", t->numNodes);
-    for (int i = 0; i < t->numNodes; i++) {
-        printf("6\n");
+    for (int i = 0; i < t->numNodes; i++)
+    {
         kademlia_peer *p = malloc(sizeof(kademlia_peer));
         memcpy(p->id, t->ids.ids_val[i].id, sizeof(uuid_t));
-        printf("7\n");
         p->host = malloc(strlen(t->hosts.hosts_val[i].host) + 1);
         strcpy(p->host, t->hosts.hosts_val[i].host);
         p->tsp_tcp = (t->protos.protos.protos_val[i] == IPPROTO_TCP) ? 1 : 0;
@@ -107,31 +97,27 @@ int kademlia_send_find_node(uuid_t id, char *rhost)
     return 0;
 }
 
-kademlia_find_node_t *
-kademlia_find_node_1(kademlia_id_t *argp, CLIENT *clnt)
+kademlia_find_node_t *kademlia_find_node_1(kademlia_id_t *argp, CLIENT *clnt)
 {
 	static kademlia_find_node_t clnt_res;
-
 	memset((char *)&clnt_res, 0, sizeof(clnt_res));
 	if (clnt_call (clnt, kademlia_find_node,
-		(xdrproc_t) xdr_kademlia_id_t, (caddr_t) argp,
-		(xdrproc_t) xdr_kademlia_find_node_t, (caddr_t) &clnt_res,
-		TIMEOUT) != RPC_SUCCESS) {
+            (xdrproc_t) xdr_kademlia_id_t, (caddr_t) argp,
+            (xdrproc_t) xdr_kademlia_find_node_t, (caddr_t) &clnt_res,
+            TIMEOUT) != RPC_SUCCESS) {
 		return (NULL);
 	}
 	return (&clnt_res);
 }
 
-kademlia_find_value_t *
-kademlia_find_value_1(kademlia_id_t *argp, CLIENT *clnt)
+kademlia_find_value_t *kademlia_find_value_1(kademlia_id_t *argp, CLIENT *clnt)
 {
 	static kademlia_find_value_t clnt_res;
-
 	memset((char *)&clnt_res, 0, sizeof(clnt_res));
 	if (clnt_call (clnt, kademlia_find_value,
-		(xdrproc_t) xdr_kademlia_id_t, (caddr_t) argp,
-		(xdrproc_t) xdr_kademlia_find_value_t, (caddr_t) &clnt_res,
-		TIMEOUT) != RPC_SUCCESS) {
+            (xdrproc_t) xdr_kademlia_id_t, (caddr_t) argp,
+            (xdrproc_t) xdr_kademlia_find_value_t, (caddr_t) &clnt_res,
+            TIMEOUT) != RPC_SUCCESS) {
 		return (NULL);
 	}
 	return (&clnt_res);

@@ -23,9 +23,7 @@ void kademlia_init()
 
 
     for (int i = 0; i < K; i++) {
-//        find_node->ids.ids_len = K;
         find_node->ids.ids_val[i].id = malloc(UUID_BYTELEN);
-//        find_value->ids.ids_len = K;
         find_value->ids.ids_val[i].id = malloc(UUID_BYTELEN);
         find_node->hosts.hosts_val[i].host = NULL;
         find_value->hosts.hosts_val[i].host = NULL;

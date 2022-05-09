@@ -11,8 +11,7 @@
 #define SIG_PF void(*)(int)
 #endif
 
-static void
-message_prog_1(struct svc_req *rqstp, register SVCXPRT *transp)
+static void message_prog_1(struct svc_req *rqstp, register SVCXPRT *transp)
 {
 	union {
 		kademlia_ping_t kademlia_ping_1_arg;
@@ -24,38 +23,39 @@ message_prog_1(struct svc_req *rqstp, register SVCXPRT *transp)
 	xdrproc_t _xdr_argument, _xdr_result;
 	char *(*local)(char *, struct svc_req *);
 
-	switch (rqstp->rq_proc) {
-	case NULLPROC:
-		(void) svc_sendreply (transp, (xdrproc_t) xdr_void, (char *)NULL);
-		return;
+	switch (rqstp->rq_proc)
+    {
+        case NULLPROC:
+            (void) svc_sendreply (transp, (xdrproc_t) xdr_void, (char *)NULL);
+            return;
 
-	case kademlia_ping:
-		_xdr_argument = (xdrproc_t) xdr_kademlia_ping_t;
-		_xdr_result = (xdrproc_t) xdr_int;
-		local = (char *(*)(char *, struct svc_req *)) kademlia_ping_1_svc;
-		break;
+        case kademlia_ping:
+            _xdr_argument = (xdrproc_t) xdr_kademlia_ping_t;
+            _xdr_result = (xdrproc_t) xdr_int;
+            local = (char *(*)(char *, struct svc_req *)) kademlia_ping_1_svc;
+            break;
 
-	case kademlia_store:
-		_xdr_argument = (xdrproc_t) xdr_kademlia_store_t;
-		_xdr_result = (xdrproc_t) xdr_int;
-		local = (char *(*)(char *, struct svc_req *)) kademlia_store_1_svc;
-		break;
+        case kademlia_store:
+            _xdr_argument = (xdrproc_t) xdr_kademlia_store_t;
+            _xdr_result = (xdrproc_t) xdr_int;
+            local = (char *(*)(char *, struct svc_req *)) kademlia_store_1_svc;
+            break;
 
-	case kademlia_find_node:
-		_xdr_argument = (xdrproc_t) xdr_kademlia_id_t;
-		_xdr_result = (xdrproc_t) xdr_kademlia_find_node_t;
-		local = (char *(*)(char *, struct svc_req *)) kademlia_find_node_1_svc;
-		break;
+        case kademlia_find_node:
+            _xdr_argument = (xdrproc_t) xdr_kademlia_id_t;
+            _xdr_result = (xdrproc_t) xdr_kademlia_find_node_t;
+            local = (char *(*)(char *, struct svc_req *)) kademlia_find_node_1_svc;
+            break;
 
-	case kademlia_find_value:
-		_xdr_argument = (xdrproc_t) xdr_kademlia_id_t;
-		_xdr_result = (xdrproc_t) xdr_kademlia_find_value_t;
-		local = (char *(*)(char *, struct svc_req *)) kademlia_find_value_1_svc;
-		break;
+        case kademlia_find_value:
+            _xdr_argument = (xdrproc_t) xdr_kademlia_id_t;
+            _xdr_result = (xdrproc_t) xdr_kademlia_find_value_t;
+            local = (char *(*)(char *, struct svc_req *)) kademlia_find_value_1_svc;
+            break;
 
-	default:
-		svcerr_noproc (transp);
-		return;
+        default:
+            svcerr_noproc (transp);
+            return;
 	}
 	memset ((char *)&argument, 0, sizeof (argument));
 	if (!svc_getargs (transp, (xdrproc_t) _xdr_argument, (caddr_t) &argument)) {

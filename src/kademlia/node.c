@@ -1,10 +1,4 @@
 #include "kademlia.h"
-/* #include "node.h" */
-
-/* #include "message.h" */
-/* #include "rpc/kademlia_rpc.h" */
-/* #include "serializer.h" */
-
 
 #include <netdb.h>
 #include <semaphore.h>
@@ -51,7 +45,8 @@ kademlia_node *kademlia_node_create(char *host, unsigned long proto) {
     return n;
 }
 
-void kademlia_node_destroy() {
+void kademlia_node_destroy()
+{
     for (int i = 0; i < M; i++) {
         for (int j = 0; j < (n->kbuckets[i]).count; j++) {
             free((n->kbuckets[i]).peers[j]->host);
@@ -106,9 +101,11 @@ void kademlia_peer_add(kademlia_peer *p)
 
 int kademlia_peer_contains(uuid_t id)
 {
-    for (int i = 0; i < M; i++) {
+    for (int i = 0; i < M; i++)
+    {
         if (sem_wait(&(n->sem)) == -1) err_exit("sem_wait");
-        for (int j = 0; j < n->kbuckets[i].count; j++) {
+        for (int j = 0; j < n->kbuckets[i].count; j++)
+        {
             if (uuid_compare(id, n->kbuckets[i].peers[j]->id) == 0) {
                 if (sem_post(&(n->sem)) == -1) err_exit("sem_post");
                 return 1;
@@ -211,7 +208,6 @@ kademlia_peer *kademlia_peer_get(uuid_t id)
 }
 
 int kademlia_network_bootstrap(char *rhost) {
-    printf("1\n");
     if (kademlia_send_find_node(n->self.id, rhost) == -1) {
         fprintf(stderr, "failed getting peers from remote host");
         return -1;
