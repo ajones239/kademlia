@@ -1,5 +1,6 @@
-#include <memory.h> /* for memset */
 #include "kademlia.h"
+#include <memory.h> /* for memset */
+#include <semaphore.h>
 
 /* Default timeout can be changed using clnt_control() */
 static struct timeval TIMEOUT = { 25, 0 };
@@ -35,9 +36,11 @@ int kademlia_send_ping(char *rhost)
     return *r;
 }
 
-int *kademlia_ping_1(kademlia_ping_t *argp, CLIENT *clnt)
+int *
+kademlia_ping_1(kademlia_ping_t *argp, CLIENT *clnt)
 {
 	static int clnt_res;
+
 	memset((char *)&clnt_res, 0, sizeof(clnt_res));
 	if (clnt_call (clnt, kademlia_ping,
 		(xdrproc_t) xdr_kademlia_ping_t, (caddr_t) argp,
@@ -48,9 +51,11 @@ int *kademlia_ping_1(kademlia_ping_t *argp, CLIENT *clnt)
 	return (&clnt_res);
 }
 
-int *kademlia_store_1(kademlia_store_t *argp, CLIENT *clnt)
+int *
+kademlia_store_1(kademlia_store_t *argp, CLIENT *clnt)
 {
 	static int clnt_res;
+
 	memset((char *)&clnt_res, 0, sizeof(clnt_res));
 	if (clnt_call (clnt, kademlia_store,
 		(xdrproc_t) xdr_kademlia_store_t, (caddr_t) argp,
@@ -89,12 +94,12 @@ int kademlia_send_find_node(uuid_t id, char *rhost)
     for (int i = 0; i < t->numNodes; i++) {
         printf("6\n");
         kademlia_peer *p = malloc(sizeof(kademlia_peer));
-        memcpy(p->id, t->ids[i].ids_val, sizeof(uuid_t));
+        memcpy(p->id, t->ids.ids_val[i].id, sizeof(uuid_t));
         printf("7\n");
-        p->host = malloc(t->hosts[i].hosts_len);
-        strcpy(p->host, *(t->hosts[i].hosts_val));
-        p->tsp_tcp = (t->protos.protos_val[i] == IPPROTO_TCP) ? 1 : 0;
-        p->tsp_udp = (t->protos.protos_val[i] == IPPROTO_UDP) ? 1 : 0;
+        p->host = malloc(strlen(t->hosts.hosts_val[i].host) + 1);
+        strcpy(p->host, t->hosts.hosts_val[i].host);
+        p->tsp_tcp = (t->protos.protos.protos_val[i] == IPPROTO_TCP) ? 1 : 0;
+        p->tsp_udp = (t->protos.protos.protos_val[i] == IPPROTO_UDP) ? 1 : 0;
         time(&(p->lastSeen));
         kademlia_peer_add(p);
     }
@@ -102,11 +107,12 @@ int kademlia_send_find_node(uuid_t id, char *rhost)
     return 0;
 }
 
-kademlia_find_node_t *kademlia_find_node_1(kademlia_id_t *argp, CLIENT *clnt)
+kademlia_find_node_t *
+kademlia_find_node_1(kademlia_id_t *argp, CLIENT *clnt)
 {
 	static kademlia_find_node_t clnt_res;
+
 	memset((char *)&clnt_res, 0, sizeof(clnt_res));
-    printf("4.3\n");
 	if (clnt_call (clnt, kademlia_find_node,
 		(xdrproc_t) xdr_kademlia_id_t, (caddr_t) argp,
 		(xdrproc_t) xdr_kademlia_find_node_t, (caddr_t) &clnt_res,
@@ -116,9 +122,11 @@ kademlia_find_node_t *kademlia_find_node_1(kademlia_id_t *argp, CLIENT *clnt)
 	return (&clnt_res);
 }
 
-kademlia_find_value_t *kademlia_find_value_1(kademlia_id_t *argp, CLIENT *clnt)
+kademlia_find_value_t *
+kademlia_find_value_1(kademlia_id_t *argp, CLIENT *clnt)
 {
 	static kademlia_find_value_t clnt_res;
+
 	memset((char *)&clnt_res, 0, sizeof(clnt_res));
 	if (clnt_call (clnt, kademlia_find_value,
 		(xdrproc_t) xdr_kademlia_id_t, (caddr_t) argp,

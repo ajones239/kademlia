@@ -4,30 +4,43 @@ typedef string host_t<>;
 struct kademlia_ping_t {
     kademlia_id_t id;
     host_t host;
-    int port;
-    int proto;
+    unsigned long proto;
+};
+
+struct kademlia_data {
+    char data<>;
 };
 
 struct kademlia_store_t {
     kademlia_id_t key;
-    char data<>;
+    struct kademlia_data data;
+};
+
+struct kademlia_internal_host {
+    host_t host;
+};
+
+struct kademlia_internal_host {
+    kademlia_id_t host;
+};
+
+struct kademlia_internal_protos {
+    unsigned long protos<>;
 };
 
 struct kademlia_find_node_t {
-    kademlia_id_t ids<>;
-    host_t hosts<>;
-    int ports<>;
-    int protos<>;
+    struct kademlia_internal_id ids<>;
+    struct kademlia_internal_host hosts<>;
+    struct kademlia_internal_protos protos;
     int numNodes;
 };
 
 struct kademlia_find_value_t {
-    kademlia_id_t ids<>;
-    host_t hosts<>;
-    int ports<>;
-    int protos<>;
+    struct kademlia_internal_id ids<>;
+    struct kademlia_internal_host hosts<>;
+    struct kademlia_internal_protos protos;
     int numNodes;
-    char data<>;
+    struct kademlia_data data;
 };
 
 program MESSAGE_PROG {

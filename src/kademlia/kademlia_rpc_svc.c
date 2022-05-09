@@ -1,7 +1,4 @@
-/* #include "kademlia_rpc.h" */
-
 #include "kademlia.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <rpc/pmap_clnt.h>
@@ -9,75 +6,71 @@
 #include <memory.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include <uuid/uuid.h>
 
 #ifndef SIG_PF
 #define SIG_PF void(*)(int)
 #endif
 
-int RES_CDE_SUC = 0;
-int RES_CDE_FLR = -1;
-pthread_mutex_t kademlia_xdr_lock;
-
-static void message_prog_1(struct svc_req *rqstp, register SVCXPRT *transp)
+static void
+message_prog_1(struct svc_req *rqstp, register SVCXPRT *transp)
 {
-    union {
-        kademlia_ping_t kademlia_ping_1_arg;
-        kademlia_store_t kademlia_store_1_arg;
-        kademlia_id_t kademlia_find_node_1_arg;
-        kademlia_id_t kademlia_find_value_1_arg;
-    }argument;
-    char *result;
-    xdrproc_t _xdr_argument, _xdr_result;
-    char *(*local)(char *, struct svc_req *);
+	union {
+		kademlia_ping_t kademlia_ping_1_arg;
+		kademlia_store_t kademlia_store_1_arg;
+		kademlia_id_t kademlia_find_node_1_arg;
+		kademlia_id_t kademlia_find_value_1_arg;
+	} argument;
+	char *result;
+	xdrproc_t _xdr_argument, _xdr_result;
+	char *(*local)(char *, struct svc_req *);
 
-    switch (rqstp->rq_proc)
-    {
-        case NULLPROC:
-            (void) svc_sendreply (transp, (xdrproc_t) xdr_void, (char *)NULL);
-            return;
+	switch (rqstp->rq_proc) {
+	case NULLPROC:
+		(void) svc_sendreply (transp, (xdrproc_t) xdr_void, (char *)NULL);
+		return;
 
-        case kademlia_ping:
-            _xdr_argument = (xdrproc_t) xdr_kademlia_ping_t;
-            _xdr_result = (xdrproc_t) xdr_int;
-            local = (char *(*)(char *, struct svc_req *)) kademlia_ping_1_svc;
-            break;
+	case kademlia_ping:
+		_xdr_argument = (xdrproc_t) xdr_kademlia_ping_t;
+		_xdr_result = (xdrproc_t) xdr_int;
+		local = (char *(*)(char *, struct svc_req *)) kademlia_ping_1_svc;
+		break;
 
-        case kademlia_store:
-            _xdr_argument = (xdrproc_t) xdr_kademlia_store_t;
-            _xdr_result = (xdrproc_t) xdr_int;
-            local = (char *(*)(char *, struct svc_req *)) kademlia_store_1_svc;
-            break;
+	case kademlia_store:
+		_xdr_argument = (xdrproc_t) xdr_kademlia_store_t;
+		_xdr_result = (xdrproc_t) xdr_int;
+		local = (char *(*)(char *, struct svc_req *)) kademlia_store_1_svc;
+		break;
 
-        case kademlia_find_node:
-            _xdr_argument = (xdrproc_t) xdr_kademlia_id_t;
-            _xdr_result = (xdrproc_t) xdr_kademlia_find_node_t;
-            local = (char *(*)(char *, struct svc_req *)) kademlia_find_node_1_svc;
-            break;
+	case kademlia_find_node:
+		_xdr_argument = (xdrproc_t) xdr_kademlia_id_t;
+		_xdr_result = (xdrproc_t) xdr_kademlia_find_node_t;
+		local = (char *(*)(char *, struct svc_req *)) kademlia_find_node_1_svc;
+		break;
 
-        case kademlia_find_value:
-            _xdr_argument = (xdrproc_t) xdr_kademlia_id_t;
-            _xdr_result = (xdrproc_t) xdr_kademlia_find_value_t;
-            local = (char *(*)(char *, struct svc_req *)) kademlia_find_value_1_svc;
-            break;
+	case kademlia_find_value:
+		_xdr_argument = (xdrproc_t) xdr_kademlia_id_t;
+		_xdr_result = (xdrproc_t) xdr_kademlia_find_value_t;
+		local = (char *(*)(char *, struct svc_req *)) kademlia_find_value_1_svc;
+		break;
 
-        default:
-            svcerr_noproc (transp);
-            return;
-    }
-    memset ((char *)&argument, 0, sizeof (argument));
-    if (!svc_getargs (transp, (xdrproc_t) _xdr_argument, (caddr_t) &argument)) {
-        svcerr_decode (transp);
-        return;
-    }
-    result = (*local)((char *)&argument, rqstp);
-    if (result != NULL && !svc_sendreply(transp, (xdrproc_t) _xdr_result, result)) {
-        svcerr_systemerr (transp);
-    }
-    if (!svc_freeargs (transp, (xdrproc_t) _xdr_argument, (caddr_t) &argument)) {
-        fprintf (stderr, "%s", "unable to free arguments");
-        exit (1);
-    }
+	default:
+		svcerr_noproc (transp);
+		return;
+	}
+	memset ((char *)&argument, 0, sizeof (argument));
+	if (!svc_getargs (transp, (xdrproc_t) _xdr_argument, (caddr_t) &argument)) {
+		svcerr_decode (transp);
+		return;
+	}
+	result = (*local)((char *)&argument, rqstp);
+	if (result != NULL && !svc_sendreply(transp, (xdrproc_t) _xdr_result, result)) {
+		svcerr_systemerr (transp);
+	}
+	if (!svc_freeargs (transp, (xdrproc_t) _xdr_argument, (caddr_t) &argument)) {
+		fprintf (stderr, "%s", "unable to free arguments");
+		exit (1);
+	}
+	return;
 }
 
 void kademlia_svc_run (void *t)
@@ -140,22 +133,22 @@ int *kademlia_store_1_svc(kademlia_store_t *st, struct svc_req *req) {
 void kademlia_find_node_add(kademlia_peer *p)
 {
     pthread_mutex_lock(&kademlia_rpc_lock);
-    memcpy(find_node->ids[find_node->numNodes].ids_val, p->id, sizeof(uuid_t));
+    memcpy(find_node->ids.ids_val[find_node->numNodes].id, p->id, sizeof(uuid_t));
+    find_node->ids.ids_len++;
 
-    find_node->hosts[find_node->numNodes].hosts_len = strlen(p->host) + 1;
-    if (find_node->hosts[find_node->numNodes].hosts_val)
-        free(find_node->hosts[find_node->numNodes].hosts_val);
-    find_node->hosts[find_node->numNodes].hosts_val = malloc(find_node->hosts[find_node->numNodes].hosts_len);
-    memcpy(find_node->hosts[find_node->numNodes].hosts_val, p->host, find_node->hosts[find_node->numNodes].hosts_len);
+    if (find_node->hosts.hosts_val[find_node->numNodes].host)
+        free(find_node->hosts.hosts_val[find_node->numNodes].host);
+    find_node->hosts.hosts_val[find_node->numNodes].host = malloc(strlen(p->host) + 1);
+    find_node->hosts.hosts_len++;
+    strcpy(find_node->hosts.hosts_val[find_node->numNodes].host, p->host);
     
-    find_node->protos.protos_val[find_node->numNodes] = (p->tsp_tcp) ? IPPROTO_TCP : IPPROTO_UDP;
+    find_node->protos.protos.protos_val[find_node->numNodes] = (p->tsp_tcp) ? IPPROTO_TCP : IPPROTO_UDP;
     find_node->numNodes++;
     pthread_mutex_unlock(&kademlia_rpc_lock);
 }
 
 kademlia_find_node_t *kademlia_find_node_1_svc(kademlia_id_t *id, struct svc_req *req)
 {
-    printf("here\n");
     int nn;
     kademlia_peer_update(*id);
     kademlia_peer *p;
@@ -182,7 +175,7 @@ kademlia_find_node_t *kademlia_find_node_1_svc(kademlia_id_t *id, struct svc_req
     }
     if (sem_post(&(n->sem)) == -1) err_exit("sem_post");
     pthread_mutex_lock(&kademlia_rpc_lock);
-    find_node->protos.protos_len = nn;
+    find_node->protos.protos.protos_len = nn;
     pthread_mutex_unlock(&kademlia_rpc_lock);
     return find_node;
 }
@@ -190,5 +183,3 @@ kademlia_find_node_t *kademlia_find_node_1_svc(kademlia_id_t *id, struct svc_req
 kademlia_find_value_t *kademlia_find_value_1_svc(kademlia_id_t *it, struct svc_req *req) {
     return NULL;
 }
-
-
