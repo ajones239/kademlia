@@ -1,14 +1,11 @@
+#ifndef KADEMLIA_NODE
+#define KADEMLIA_NODE
+
 #include <pthread.h>
 #include <semaphore.h>
 #include <uuid/uuid.h>
 #include "conf.h"
 #include "data.h"
-
-typedef struct {
-    uuid_t key;
-    unsigned int len;
-    char *data;
-}kademlia_data_t;
 
 typedef struct {
     uuid_t id;    
@@ -61,3 +58,5 @@ kademlia_peer *kademlia_peer_next(uuid_t id);
 kademlia_peer *kademlia_peer_get(uuid_t id);
 
 int kademlia_network_bootstrap(char *rhost);
+
+#endif

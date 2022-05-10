@@ -1,3 +1,6 @@
+#ifndef KADEMLIA_KADEMLIA
+#define KADEMLIA_KADEMLIA
+
 #include "data.h"
 #include "node.h"
 #include "kademlia_rpc.h"
@@ -11,3 +14,5 @@ void kademlia_init();
 void kademlia_destroy();
 
 void err_exit(char *msg);
+
+#endif
