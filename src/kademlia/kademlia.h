@@ -1,3 +1,4 @@
+#include "data.h"
 #include "node.h"
 #include "kademlia_rpc.h"
 #include "conf.h"

@@ -42,6 +42,11 @@ kademlia_node *kademlia_node_create(char *host, unsigned long proto) {
     pthread_t t;
     pthread_create(&t, NULL, (void *)kademlia_svc_run, (void *)n);
 
+    n->dataCount = 0;
+    n->data = malloc(sizeof(kademlia_data_t *) * MAX_DATA_COUNT);
+    for (int i = 0; i < MAX_DATA_COUNT; i++)
+        n->data[i] = NULL;
+
     return n;
 }
 
@@ -54,6 +59,15 @@ void kademlia_node_destroy()
         }
     }
     free(n->self.host);
+
+    for (int i = 0; i < MAX_DATA_COUNT; i++) {
+        if (n->data[i] != NULL) {
+            free((n->data[i])->data);
+            free(n->data[i]);
+        }
+    }
+    free(n->data);
+
     free(n);
     return;
 }
@@ -109,9 +123,7 @@ int kademlia_peer_contains(uuid_t id)
             if (uuid_compare(id, n->kbuckets[i].peers[j]->id) == 0) {
                 if (sem_post(&(n->sem)) == -1) err_exit("sem_post");
                 return 1;
-            }
-            else
-                continue;
+            } else continue;
         }
         if (sem_post(&(n->sem)) == -1) err_exit("sem_post");
     }

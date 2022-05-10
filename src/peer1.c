@@ -23,6 +23,11 @@ int main(int argc, char **argv) {
         return -1;
     }
 
+    uuid_t k;
+    uuid_generate_random(k);
+    if (kademlia_send_store(k, "test", 4, "127.0.0.1") != 0)
+        printf("FAIL\n");
+
     while (1);
 
     kademlia_node_destroy();

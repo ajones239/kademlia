@@ -2,6 +2,13 @@
 #include <semaphore.h>
 #include <uuid/uuid.h>
 #include "conf.h"
+#include "data.h"
+
+typedef struct {
+    uuid_t key;
+    unsigned int len;
+    char *data;
+}kademlia_data_t;
 
 typedef struct {
     uuid_t id;    
@@ -20,6 +27,10 @@ typedef struct kademlia_node_t {
     kademlia_peer self;
     kademlia_bucket kbuckets[M];
     int peerCount;
+
+    int dataCount;
+    kademlia_data_t **data;
+    
     sem_t sem;
 }kademlia_node;
 

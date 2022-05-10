@@ -49,6 +49,37 @@ int *kademlia_ping_1(kademlia_ping_t *argp, CLIENT *clnt)
 	return (&clnt_res);
 }
 
+int kademlia_send_store(uuid_t k, char *d, unsigned int dlen, char *rhost)
+{
+    kademlia_store_t st;
+    st.key = malloc(UUID_BYTELEN);
+    uuid_copy(st.key, k);
+    st.data.data.data_len = dlen;
+    st.data.data.data_val = malloc(dlen);
+    memcpy(st.data.data.data_val, d, dlen);
+
+    char *tspStr;
+    if (sem_wait(&(n->sem)) == -1) err_exit("sem_wait");
+    if (n->self.tsp_tcp)
+        tspStr = "tcp";
+    else
+        tspStr = "udp";
+    if (sem_post(&(n->sem)) == -1) err_exit("sem_post");
+
+    CLIENT *clnt;
+    clnt = clnt_create(rhost, MESSAGE_PROG, MESSAGE_VERS, tspStr);
+    if (clnt == NULL) {
+        fprintf(stderr, "error creating rpc client\n");
+        return -1;
+    }
+    int *r = kademlia_store_1(&st, clnt);
+    free(st.key);
+    free(st.data.data.data_val);
+    free(clnt);
+
+    return *r;
+}
+
 int *kademlia_store_1(kademlia_store_t *argp, CLIENT *clnt)
 {
 	static int clnt_res;
@@ -94,6 +125,7 @@ int kademlia_send_find_node(uuid_t id, char *rhost)
         kademlia_peer_add(p);
     }
     free(clnt);
+    free(idcpy);
     return 0;
 }
 

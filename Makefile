@@ -16,10 +16,11 @@ setup:
 libkademlia:
 	$(CC) -I /usr/include/tirpc -c src/kademlia/kademlia.c -o build/kademlia/kademlia.o
 	$(CC) -I /usr/include/tirpc -c src/kademlia/node.c -o build/kademlia/node.o
+	$(CC) -I /usr/include/tirpc -c src/kademlia/data.c -o build/kademlia/data.o
 	$(CC) -I /usr/include/tirpc -c src/kademlia/kademlia_rpc_clnt.c -o build/kademlia/kademlia_rpc_clnt.o
 	$(CC) -I /usr/include/tirpc -c src/kademlia/kademlia_rpc_xdr.c -o build/kademlia/kademlia_rpc_xdr.o
 	$(CC) -I /usr/include/tirpc -c src/kademlia/kademlia_rpc_svc.c -o build/kademlia/kademlia_rpc_svc.o
-	ar rs lib/libkademlia.a build/kademlia/kademlia.o build/kademlia/node.o build/kademlia/kademlia_rpc_clnt.o build/kademlia/kademlia_rpc_svc.o build/kademlia/kademlia_rpc_xdr.o
+	ar rs lib/libkademlia.a build/kademlia/kademlia.o build/kademlia/node.o build/kademlia/data.o build/kademlia/kademlia_rpc_clnt.o build/kademlia/kademlia_rpc_svc.o build/kademlia/kademlia_rpc_xdr.o
 
 test:
 	$(CC) -I /usr/include/tirpc -I ./src/kademlia -c src/peer1.c -o build/peer1.o

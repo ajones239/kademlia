@@ -94,6 +94,7 @@ extern  int kademlia_send_ping(char *);
 extern  int * kademlia_ping_1(kademlia_ping_t *, CLIENT *);
 extern  int * kademlia_ping_1_svc(kademlia_ping_t *, struct svc_req *);
 #define kademlia_store 2
+extern  int kademlia_send_store(uuid_t, char *, unsigned int, char *);
 extern  int * kademlia_store_1(kademlia_store_t *, CLIENT *);
 extern  int * kademlia_store_1_svc(kademlia_store_t *, struct svc_req *);
 #define kademlia_find_node 3

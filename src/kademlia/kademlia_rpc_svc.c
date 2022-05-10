@@ -126,8 +126,8 @@ int *kademlia_ping_1_svc(kademlia_ping_t *pt, struct svc_req *req) {
 }
 
 int *kademlia_store_1_svc(kademlia_store_t *st, struct svc_req *req) {
-    int i = 0;
-    return &i;
+    kademlia_data_add(st->key, st->data.data.data_val, st->data.data.data_len);
+    return &RES_CDE_SUC;
 }
 
 void kademlia_find_node_add(kademlia_peer *p)
