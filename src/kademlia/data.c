@@ -1,5 +1,7 @@
 #include "kademlia.h"
 
+#include <string.h>
+
 void kademlia_data_add(uuid_t k, char *d, unsigned int dlen)
 {
     unsigned int l = (dlen <= MAX_DATA_LEN) ? dlen : MAX_DATA_LEN;
