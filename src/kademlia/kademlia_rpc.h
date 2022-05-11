@@ -102,9 +102,11 @@ extern  int kademlia_send_find_node(uuid_t, char *);
 extern  kademlia_find_node_t * kademlia_find_node_1(kademlia_id_t *, CLIENT *);
 extern  kademlia_find_node_t * kademlia_find_node_1_svc(kademlia_id_t *, struct svc_req *);
 #define kademlia_find_value 4
+extern  kademlia_data_t *kademlia_send_find_value(kademlia_id_t *k, char *rhost);
 extern  kademlia_find_value_t * kademlia_find_value_1(kademlia_id_t *, CLIENT *);
 extern  kademlia_find_value_t * kademlia_find_value_1_svc(kademlia_id_t *, struct svc_req *);
-extern int message_prog_1_freeresult (SVCXPRT *, xdrproc_t, caddr_t);
+
+extern  int message_prog_1_freeresult (SVCXPRT *, xdrproc_t, caddr_t);
 
 #else /* K&R C */
 #define kademlia_ping 1

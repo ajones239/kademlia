@@ -31,13 +31,13 @@ int kademlia_data_contains(uuid_t k)
     return r;
 }
 
-char *kademlia_data_get(uuid_t k)
+kademlia_data_t *kademlia_data_get(uuid_t k)
 {
-    char *r = NULL;
+    kademlia_data_t *r = NULL;
     if (sem_wait(&(n->sem)) == -1) err_exit("sem_wait");   
     for (int i = 0; i < n->dataCount; i++) {
         if (uuid_compare(k, (n->data[i])->key) == 0) {
-            r = (n->data[i])->data;
+            r = n->data[i];
             break;
         } else continue;
     }

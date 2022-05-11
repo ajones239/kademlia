@@ -150,7 +150,6 @@ void kademlia_find_node_add(kademlia_peer *p)
 kademlia_find_node_t *kademlia_find_node_1_svc(kademlia_id_t *id, struct svc_req *req)
 {
     int nn;
-    kademlia_peer_update(*id);
     kademlia_peer *p;
     find_node->numNodes = 0;
     if (sem_wait(&(n->sem)) == -1) err_exit("sem_wait");
@@ -180,6 +179,60 @@ kademlia_find_node_t *kademlia_find_node_1_svc(kademlia_id_t *id, struct svc_req
     return find_node;
 }
 
-kademlia_find_value_t *kademlia_find_value_1_svc(kademlia_id_t *it, struct svc_req *req) {
-    return NULL;
+void kademlia_find_value_add(kademlia_peer *p)
+{
+    pthread_mutex_lock(&kademlia_rpc_lock);
+    memcpy(find_value->ids.ids_val[find_value->numNodes].id, p->id, sizeof(uuid_t));
+    find_value->ids.ids_len++;
+
+    if (find_value->hosts.hosts_val[find_value->numNodes].host)
+        free(find_value->hosts.hosts_val[find_value->numNodes].host);
+    find_value->hosts.hosts_val[find_value->numNodes].host = malloc(strlen(p->host) + 1);
+    find_value->hosts.hosts_len++;
+    strcpy(find_value->hosts.hosts_val[find_value->numNodes].host, p->host);
+    
+    find_value->protos.protos.protos_val[find_value->numNodes] = (p->tsp_tcp) ? IPPROTO_TCP : IPPROTO_UDP;
+    find_value->numNodes++;
+    pthread_mutex_unlock(&kademlia_rpc_lock);
+}
+
+kademlia_find_value_t *kademlia_find_value_1_svc(kademlia_id_t *id, struct svc_req *req)
+{
+    if (kademlia_data_contains(*id)) {
+        kademlia_data_t *t = kademlia_data_get(*id);
+        pthread_mutex_lock(&kademlia_rpc_lock);
+        find_value->data.data.data_len = t->len;
+        find_value->data.data.data_val = t->data;
+        find_value->numNodes = 0;
+        pthread_mutex_unlock(&kademlia_rpc_lock);
+    } else {
+        int nn;
+        kademlia_peer *p;
+        find_value->numNodes = 0;
+        if (sem_wait(&(n->sem)) == -1) err_exit("sem_wait");
+        if (n->peerCount < K) {
+            nn = n->peerCount;
+            for (int i = 0; i < M; i++) {
+                for (int j = 0; j < n->kbuckets[i].count; j++) {
+                    p = n->kbuckets[i].peers[j];
+                    kademlia_find_value_add(p);
+                }
+            }
+        } else {
+            nn = K;
+            if (kademlia_peer_contains(*id)) {
+                p = kademlia_peer_get(*id);
+                kademlia_find_value_add(p); 
+            }
+            while (find_value->numNodes < K) {
+                p = kademlia_peer_next(p->id);
+                kademlia_find_value_add(p);            
+            }
+        }
+        if (sem_post(&(n->sem)) == -1) err_exit("sem_post");
+        pthread_mutex_lock(&kademlia_rpc_lock);
+        find_value->protos.protos.protos_len = nn;
+        pthread_mutex_unlock(&kademlia_rpc_lock);
+    }
+    return find_value;
 }

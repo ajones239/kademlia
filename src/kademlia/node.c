@@ -43,7 +43,6 @@ kademlia_node *kademlia_node_create(char *host, unsigned long proto) {
     pthread_create(&t, NULL, (void *)kademlia_svc_run, (void *)n);
 
     n->dataCount = 0;
-    n->data = malloc(sizeof(kademlia_data_t *) * MAX_DATA_COUNT);
     for (int i = 0; i < MAX_DATA_COUNT; i++)
         n->data[i] = NULL;
 
@@ -66,7 +65,6 @@ void kademlia_node_destroy()
             free(n->data[i]);
         }
     }
-    free(n->data);
 
     free(n);
     return;
@@ -230,3 +228,32 @@ int kademlia_network_bootstrap(char *rhost) {
     }
     return 0;
 }
+
+int kademlia_network_store(uuid_t key, char *data, unsigned int dlen) {
+    kademlia_peer *p;
+    if (kademlia_peer_contains(key))
+        p = kademlia_peer_get(key);
+    else
+        p = kademlia_peer_next(key);
+    return kademlia_send_store(key, data, dlen, p->host);
+}
+
+char *kademlia_network_fetch(uuid_t key) {
+    kademlia_peer *p, *o;
+    if (kademlia_peer_contains(key))
+        p = kademlia_peer_get(key);
+    else
+        p = kademlia_peer_next(key);
+    o = p;
+    kademlia_data_t *dt = NULL;
+    while (dt == NULL) {
+        dt = kademlia_send_find_value(&key, p->host);
+        if (dt != NULL)
+            return dt->data;
+        else
+            p = kademlia_peer_next(p->id);
+        if (p == o) return NULL;
+    }
+    return NULL;
+}
+

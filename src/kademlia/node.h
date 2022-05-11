@@ -26,28 +26,16 @@ typedef struct kademlia_node_t {
     int peerCount;
 
     int dataCount;
-    kademlia_data_t **data;
+    kademlia_data_t *data[MAX_DATA_COUNT];
     
     sem_t sem;
 }kademlia_node;
-
-typedef struct {
-    kademlia_node *n;
-    char *data;
-    struct sockaddr_in *client;
-    int sock;
-    int proto;
-}client_sock_vars;
 
 kademlia_node *kademlia_node_create(char *host, unsigned long proto);
 
 void kademlia_node_destroy();
 
-void kademlia_node_listen(void *t);
-
 void kademlia_peer_add(kademlia_peer *p);
-
-void kademlia_peer_sort();
 
 int kademlia_peer_contains(uuid_t id);
 
@@ -59,4 +47,7 @@ kademlia_peer *kademlia_peer_get(uuid_t id);
 
 int kademlia_network_bootstrap(char *rhost);
 
+int kademlia_network_store(uuid_t key, char *data, unsigned int dlen);
+
+char *kademlia_network_fetch(uuid_t key);
 #endif

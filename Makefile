@@ -4,7 +4,7 @@
 # lto
 # LTO_FLAGS = -flto=25 -fuse-linker-plugin -fno-fat-lto-objects
 CFLAGS = $(COMMON_FLAGS) $(GRAPHITE_FLAGS) $(LTO_FLAGS)
-CC = gcc -g -Wall -pipe -std=c99 $(CFLAGS)
+CC = clang -g -Wall -pipe -std=c99 $(CFLAGS)
 
 all: setup libkademlia test 
 

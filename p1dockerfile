@@ -6,7 +6,7 @@ WORKDIR /app
 
 RUN apt-get update
 RUN apt-get upgrade -y
-RUN apt-get install -y rpcbind make gcc uuid-dev
+RUN apt-get install -y rpcbind make clang uuid-dev
 
 RUN make
 

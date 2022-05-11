@@ -142,6 +142,50 @@ kademlia_find_node_t *kademlia_find_node_1(kademlia_id_t *argp, CLIENT *clnt)
 	return (&clnt_res);
 }
 
+kademlia_data_t *kademlia_send_find_value(kademlia_id_t *k, char *rhost) {
+    unsigned char *idcpy = malloc(sizeof(uuid_t));
+    memcpy(idcpy, k, sizeof(uuid_t));
+    kademlia_data_t *r = NULL;
+    
+    CLIENT *clnt;
+    char *tspStr;
+    if (sem_wait(&(n->sem)) == -1) err_exit("sem_wait");
+    if (n->self.tsp_tcp)
+        tspStr = "tcp";
+    else
+        tspStr = "udp";
+    if (sem_post(&(n->sem)) == -1) err_exit("sem_post");
+    clnt = clnt_create(rhost, MESSAGE_PROG, MESSAGE_VERS, tspStr);
+    if (clnt == NULL) {
+        fprintf(stderr, "error creating rpc client\n");
+        return NULL;
+    }
+
+    kademlia_find_value_t *t = kademlia_find_value_1(&idcpy, clnt);
+    if (t->numNodes == 0) {
+        r = malloc(sizeof(kademlia_data_t));
+        uuid_copy(r->key, *k);
+        r->len = t->data.data.data_len;
+        memcpy(r->data, t->data.data.data_val, r->len);
+    } else
+    {
+        for (int i = 0; i < t->numNodes; i++)
+        {
+            kademlia_peer *p = malloc(sizeof(kademlia_peer));
+            memcpy(p->id, t->ids.ids_val[i].id, sizeof(uuid_t));
+            p->host = malloc(strlen(t->hosts.hosts_val[i].host) + 1);
+            strcpy(p->host, t->hosts.hosts_val[i].host);
+            p->tsp_tcp = (t->protos.protos.protos_val[i] == IPPROTO_TCP) ? 1 : 0;
+            p->tsp_udp = (t->protos.protos.protos_val[i] == IPPROTO_UDP) ? 1 : 0;
+            time(&(p->lastSeen));
+            kademlia_peer_add(p);
+        }
+    } 
+    free(clnt);
+    free(idcpy);
+    return r;
+}
+
 kademlia_find_value_t *kademlia_find_value_1(kademlia_id_t *argp, CLIENT *clnt)
 {
 	static kademlia_find_value_t clnt_res;
