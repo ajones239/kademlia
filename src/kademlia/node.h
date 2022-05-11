@@ -20,7 +20,7 @@ typedef struct {
     kademlia_peer *peers[K];
 }kademlia_bucket;
 
-typedef struct kademlia_node_t {
+typedef struct {
     kademlia_peer self;
     kademlia_bucket kbuckets[M];
     int peerCount;

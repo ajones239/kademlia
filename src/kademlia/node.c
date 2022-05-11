@@ -91,9 +91,10 @@ void kademlia_peer_add(kademlia_peer *p)
     kademlia_distance(p->id, n->self.id, distance);
     int index;
     for (int i = 1; i < M; i++) {
-        uuid_t t = {0};
+        uuid_t t;
+        memset(t, 0, sizeof(uuid_t));
         kademlia_uuid_setbit(t, i);
-        if (uuid_compare(distance, t) <= 0) {              // 128 kbuckets, indexed
+        if (uuid_compare(t, distance) <= 0) {              // 128 kbuckets, indexed
             index = i - 1;                                 // from 0. bucket i holds
             break;                                         // peers from 2^i to 2^{i+1}
         } else if (i == M - 1)
@@ -159,43 +160,56 @@ int kademlia_peer_update(uuid_t id)
     return -1;
 }
 
-kademlia_peer *kademlia_peer_next(uuid_t id) {
-    int bindex, pindex;
-    kademlia_peer *p;
-    for (int i = 1; i < M; i++) {
-        uuid_t t = {0};
-        kademlia_uuid_setbit(t, i);
-        if (uuid_compare(id, t) <= 0) {
-            bindex = i - 1;
-            break;
-        } else if (i == M - 1)
-            bindex = i;
-    }
-    if (sem_wait(&(n->sem)) == -1) err_exit("sem_wait");
-    kademlia_bucket *b = &(n->kbuckets[bindex]);
-    for (int i = 0; i < b->count; i++) {
-        if (uuid_compare(id, b->peers[i]->id) == 0)
-            pindex = i;
-    }
-    if (pindex != b->count - 1) {
-        p = b->peers[pindex + 1];
+kademlia_peer *kademlia_peer_next(uuid_t id)
+{
+    int bindex = -1, pindex = -1;
+    if (kademlia_peer_contains(id))
+    {
+        for (int i = 0; i < M; i++)
+        {
+            for (int j = 0; j < n->kbuckets[i].count; j++) {
+                if (uuid_compare(id, (n->kbuckets[i].peers[j])->id) == 0) {
+                    bindex = i;
+                    pindex = j;
+                    break;
+                }
+            }
+            if (bindex != -1)
+                break;
+        }
     } else
     {
-        while (1)
+        pindex = 0;
+        for (int i = 1; i < M; i++)
         {
+            uuid_t t;
+            memset(t, 0, sizeof(uuid_t));
+            kademlia_uuid_setbit(t, i);
+            if (uuid_compare(t, id) <= 0) {
+                bindex = i - 1;
+                break;
+            } else if (i == M - 1)
+                bindex = i;
+        }
+    }
+    char done = 0;
+    kademlia_peer *p;
+    while (!done)
+    {
+        if (sem_wait(&(n->sem)) == -1) err_exit("sem_wait");
+        kademlia_bucket *b = &(n->kbuckets[bindex]);
+        if (b->count == 0) {
             if (bindex == M - 1)
                 bindex = 0;
             else
                 bindex++;
-            if (n->kbuckets[bindex].count == 0)
-                continue;
-            else {
-                p = n->kbuckets[bindex].peers[0];
-                break;
-            }
+        } else {
+            done = 1;
+            p = n->kbuckets[bindex].peers[pindex];
         }
+        if (sem_post(&(n->sem)) == -1) err_exit("sem_post");
     }
-    if (sem_post(&(n->sem)) == -1) err_exit("sem_post");
+
     return p;
 }
 
@@ -239,20 +253,16 @@ int kademlia_network_store(uuid_t key, char *data, unsigned int dlen) {
 }
 
 char *kademlia_network_fetch(uuid_t key) {
-    kademlia_peer *p, *o;
-    if (kademlia_peer_contains(key))
-        p = kademlia_peer_get(key);
-    else
-        p = kademlia_peer_next(key);
-    o = p;
-    kademlia_data_t *dt = NULL;
-    while (dt == NULL) {
-        dt = kademlia_send_find_value(&key, p->host);
-        if (dt != NULL)
-            return dt->data;
-        else
-            p = kademlia_peer_next(p->id);
-        if (p == o) return NULL;
+    if (kademlia_data_contains(key))
+        return kademlia_data_get(key)->data;
+    kademlia_peer *p = NULL;
+    for (int i = 0; i < M; i++) {
+        for (int j = 0; j < n->kbuckets[i].count; j++) {
+            p = n->kbuckets[i].peers[j];
+            kademlia_data_t *dt = kademlia_send_find_value(&key, p->host);
+            if (dt != NULL)
+                return dt->data;
+        }
     }
     return NULL;
 }
