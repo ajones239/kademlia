@@ -58,7 +58,6 @@ void kademlia_node_destroy()
         }
     }
     free(n->self.host);
-
     for (int i = 0; i < MAX_DATA_COUNT; i++) {
         if (n->data[i] != NULL) {
             free((n->data[i])->data);
@@ -66,7 +65,6 @@ void kademlia_node_destroy()
         }
     }
 
-    free(n);
     return;
 }
 

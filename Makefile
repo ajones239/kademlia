@@ -1,12 +1,8 @@
-# COMMON_FLAGS = -Wall -O3 -march=native -pipe -fomit-frame-pointer -ftree-vectorize -std=c99
-# graphite
-# GRAPHITE_FLAGS = -fgraphite-identity -floop-interchange -ftree-loop-distribution -floop-strip-mine 
-# lto
-# LTO_FLAGS = -flto=25 -fuse-linker-plugin -fno-fat-lto-objects
-CFLAGS = $(COMMON_FLAGS) $(GRAPHITE_FLAGS) $(LTO_FLAGS)
-CC = clang -g -Wall -pipe -std=c99 $(CFLAGS)
+DEMOFLAGS = -std=gnu99 
+LIBFLAGS = -std=c99
+CC = clang -g -Wall -pipe $(CFLAGS)
 
-all: setup libkademlia test 
+all: setup libkademlia demo 
 
 setup:
 	mkdir -p build/kademlia
@@ -14,22 +10,21 @@ setup:
 	mkdir -p lib
 
 libkademlia:
-	$(CC) -I /usr/include/tirpc -c src/kademlia/kademlia.c -o build/kademlia/kademlia.o
-	$(CC) -I /usr/include/tirpc -c src/kademlia/node.c -o build/kademlia/node.o
-	$(CC) -I /usr/include/tirpc -c src/kademlia/data.c -o build/kademlia/data.o
-	$(CC) -I /usr/include/tirpc -c src/kademlia/kademlia_rpc_clnt.c -o build/kademlia/kademlia_rpc_clnt.o
-	$(CC) -I /usr/include/tirpc -c src/kademlia/kademlia_rpc_xdr.c -o build/kademlia/kademlia_rpc_xdr.o
-	$(CC) -I /usr/include/tirpc -c src/kademlia/kademlia_rpc_svc.c -o build/kademlia/kademlia_rpc_svc.o
+	$(CC) $(LIBFLAGS) -I /usr/include/tirpc -c src/kademlia/kademlia.c -o build/kademlia/kademlia.o
+	$(CC) $(LIBFLAGS) -I /usr/include/tirpc -c src/kademlia/node.c -o build/kademlia/node.o
+	$(CC) $(LIBFLAGS) -I /usr/include/tirpc -c src/kademlia/data.c -o build/kademlia/data.o
+	$(CC) $(LIBFLAGS) -I /usr/include/tirpc -c src/kademlia/kademlia_rpc_clnt.c -o build/kademlia/kademlia_rpc_clnt.o
+	$(CC) $(LIBFLAGS) -I /usr/include/tirpc -c src/kademlia/kademlia_rpc_xdr.c -o build/kademlia/kademlia_rpc_xdr.o
+	$(CC) $(LIBFLAGS) -I /usr/include/tirpc -c src/kademlia/kademlia_rpc_svc.c -o build/kademlia/kademlia_rpc_svc.o
 	ar rs lib/libkademlia.a build/kademlia/kademlia.o build/kademlia/node.o build/kademlia/data.o build/kademlia/kademlia_rpc_clnt.o build/kademlia/kademlia_rpc_svc.o build/kademlia/kademlia_rpc_xdr.o
 
-test:
-	$(CC) -I /usr/include/tirpc -I ./src/kademlia -c src/peer1.c -o build/peer1.o
-	$(CC) -I /usr/include/tirpc -I ./src/kademlia -c src/peer2.c -o build/peer2.o
-	$(CC) build/peer1.o lib/libkademlia.a -o peer1 -luuid -pthread -ltirpc
-	$(CC) build/peer2.o lib/libkademlia.a -o peer2 -luuid -pthread -ltirpc
+demo:
+	$(CC) $(DEMOFLAGS) -I /usr/include/tirpc -I ./src/kademlia -c src/peer1.c -o build/peer1.o
+	$(CC) $(DEMOFLAGS) -I /usr/include/tirpc -I ./src/kademlia -c src/peer2.c -o build/peer2.o
+	$(CC) $(DEMOFLAGS) build/kpeer.o lib/libkademlia.a -o kpeer -luuid -pthread -ltirpc
 
 clean:
 	rm -rf build
 	rm -rf lib
-	rm peer1 peer2
+	rm kpeer
 
