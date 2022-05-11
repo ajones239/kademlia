@@ -19,8 +19,7 @@ libkademlia:
 	ar rs lib/libkademlia.a build/kademlia/kademlia.o build/kademlia/node.o build/kademlia/data.o build/kademlia/kademlia_rpc_clnt.o build/kademlia/kademlia_rpc_svc.o build/kademlia/kademlia_rpc_xdr.o
 
 demo:
-	$(CC) $(DEMOFLAGS) -I /usr/include/tirpc -I ./src/kademlia -c src/peer1.c -o build/peer1.o
-	$(CC) $(DEMOFLAGS) -I /usr/include/tirpc -I ./src/kademlia -c src/peer2.c -o build/peer2.o
+	$(CC) $(DEMOFLAGS) -I /usr/include/tirpc -I ./src/kademlia -c src/kpeer.c -o build/kpeer.o
 	$(CC) $(DEMOFLAGS) build/kpeer.o lib/libkademlia.a -o kpeer -luuid -pthread -ltirpc
 
 clean:
