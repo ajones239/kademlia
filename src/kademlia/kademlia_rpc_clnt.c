@@ -144,7 +144,7 @@ kademlia_find_node_t *kademlia_find_node_1(kademlia_id_t *argp, CLIENT *clnt)
 
 kademlia_data_t *kademlia_send_find_value(kademlia_id_t *k, char *rhost) {
     unsigned char *idcpy = malloc(sizeof(uuid_t));
-    memcpy(idcpy, k, sizeof(uuid_t));
+    memcpy(idcpy, *k, sizeof(uuid_t));
     kademlia_data_t *r = NULL;
     
     CLIENT *clnt;
