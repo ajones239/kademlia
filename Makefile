@@ -1,6 +1,6 @@
 DEMOFLAGS = -std=gnu99 
 LIBFLAGS = -std=c99
-CC = clang -g -Wall -pipe $(CFLAGS)
+CC = gcc -g -Wall -pipe $(CFLAGS)
 
 all: setup libkademlia demo 
 
