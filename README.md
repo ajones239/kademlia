@@ -30,9 +30,9 @@ libkademlia.a is now in lib folder. Demo program (kpeer) is in working directory
 - Before running any kademlia code, call kademlia_init(void)
 - To create a peer, run kademlia_peer_create(char *host, unsigned long proto).
 - Now you can call the functions
-&nbsp; &nbsp; * kademlia_network_bootstrap(char *rhost)
-&nbsp; &nbsp; * kademlia_network_store(uuid_t key, char *data, unsigned int dlen)
-&nbsp; &nbsp; * kademlia_network_fetch(uuid_t key)
+    * kademlia_network_bootstrap(char *rhost)
+    * kademlia_network_store(uuid_t key, char *data, unsigned int dlen)
+    * kademlia_network_fetch(uuid_t key)
 - To cleanup the node run kademlia_node_destroy()
 - To cleanup the kademlia environment, run kademlia_destroy()
 
