@@ -22,6 +22,7 @@ Only tested on Debian and Gentoo.
 2. git clone https://github.com/arjones239/kademlia.git
 3. cd kademlia
 4. make
+
 libkademlia.a is now in lib folder. Demo program (kpeer) is in working directory.
 
 ## API
